@@ -19,7 +19,7 @@ const actionStyles: Record<Action, string> = {
 
 export function VerdictBadge({ verdict, className }: { verdict: Verdict; className?: string }) {
   return (
-    <Badge className={cn("border-0 font-semibold text-[10px]", verdictStyles[verdict], className)}>
+    <Badge className={cn("border-0 font-semibold text-[10px] rounded-md tracking-wide", verdictStyles[verdict], className)}>
       {verdict}
     </Badge>
   );
@@ -27,7 +27,7 @@ export function VerdictBadge({ verdict, className }: { verdict: Verdict; classNa
 
 export function ActionBadge({ action, className }: { action: Action; className?: string }) {
   return (
-    <Badge className={cn("border-0 font-semibold text-[10px]", actionStyles[action], className)}>
+    <Badge className={cn("border-0 font-semibold text-[10px] rounded-md tracking-wide", actionStyles[action], className)}>
       {action}
     </Badge>
   );

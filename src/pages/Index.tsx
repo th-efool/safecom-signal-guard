@@ -1,8 +1,7 @@
 import { AppLayout } from "@/components/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { VerdictBadge, ActionBadge } from "@/components/StatusBadge";
-import { Shield, AlertTriangle, TrendingUp, Activity, Bot } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
+import { Shield, AlertTriangle, TrendingUp, Activity, Bot, ArrowUpRight } from "lucide-react";
 
 const riskSurface = [
   { label: "Harassment", value: 12, color: "bg-primary" },
@@ -32,74 +31,88 @@ const signalsFeed = [
   { issue: "Normal conversation", category: "—", severity: "SAFE" as const, action: "ALLOW" as const, time: "11:57:05" },
 ];
 
+const statCards = [
+  {
+    label: "Threat Level",
+    value: "SAFE",
+    valueClass: "text-safe",
+    icon: Shield,
+    iconClass: "text-safe",
+    subtle: "No active threats",
+  },
+  {
+    label: "Governance Confidence",
+    value: "96.4%",
+    valueClass: "text-foreground",
+    icon: Activity,
+    iconClass: "text-primary",
+    subtle: "+2.1% from last hour",
+  },
+  {
+    label: "Active Threats",
+    value: "3",
+    valueClass: "text-foreground",
+    icon: AlertTriangle,
+    iconClass: "text-warning",
+    subtle: "2 flagged, 1 escalated",
+  },
+  {
+    label: "Escalation Rate",
+    value: "0.7%",
+    valueClass: "text-foreground",
+    icon: TrendingUp,
+    iconClass: "text-muted-foreground",
+    subtle: "Below threshold",
+  },
+];
+
 const Dashboard = () => {
   const total = signalDistribution.safe + signalDistribution.suspicious + signalDistribution.dangerous;
 
   return (
     <AppLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-xl font-semibold">System Posture</h1>
-          <p className="text-sm text-muted-foreground">Overall safety state and operational trends</p>
+        <div className="flex items-end justify-between">
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight">System Posture</h1>
+            <p className="text-sm text-muted-foreground">Overall safety state and operational trends</p>
+          </div>
+          <span className="text-[11px] font-mono text-muted-foreground">Last updated: just now</span>
         </div>
 
-        {/* System State Cards */}
+        {/* Stat Cards */}
         <div className="grid grid-cols-4 gap-4">
-          <Card>
-            <CardContent className="pt-5 pb-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-muted-foreground font-medium">Threat Level</span>
-                <Shield className="h-4 w-4 text-safe" />
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-2xl font-bold text-safe">SAFE</span>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-5 pb-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-muted-foreground font-medium">Governance Confidence</span>
-                <Activity className="h-4 w-4 text-primary" />
-              </div>
-              <span className="text-2xl font-bold">96.4%</span>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-5 pb-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-muted-foreground font-medium">Active Threats</span>
-                <AlertTriangle className="h-4 w-4 text-warning" />
-              </div>
-              <span className="text-2xl font-bold">3</span>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-5 pb-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-muted-foreground font-medium">Escalation Rate</span>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <span className="text-2xl font-bold">0.7%</span>
-            </CardContent>
-          </Card>
+          {statCards.map((card) => (
+            <Card key={card.label} className="group hover:shadow-md transition-shadow">
+              <CardContent className="pt-5 pb-4">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[11px] text-muted-foreground font-medium uppercase tracking-wide">{card.label}</span>
+                  <div className="h-8 w-8 rounded-lg bg-secondary flex items-center justify-center">
+                    <card.icon className={`h-4 w-4 ${card.iconClass}`} />
+                  </div>
+                </div>
+                <span className={`text-2xl font-bold tracking-tight ${card.valueClass}`}>{card.value}</span>
+                <p className="text-[10px] text-muted-foreground mt-1">{card.subtle}</p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
         <div className="grid grid-cols-3 gap-4">
           {/* Risk Surface */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold">Risk Surface</CardTitle>
+              <CardTitle className="text-sm font-semibold tracking-tight">Risk Surface</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-3.5">
               {riskSurface.map((r) => (
-                <div key={r.label} className="space-y-1">
+                <div key={r.label} className="space-y-1.5">
                   <div className="flex justify-between text-xs">
                     <span className="text-muted-foreground">{r.label}</span>
-                    <span className="font-mono font-medium">{r.value}</span>
+                    <span className="font-mono font-semibold">{r.value}</span>
                   </div>
-                  <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                    <div className={`h-full rounded-full ${r.color}`} style={{ width: `${(r.value / 20) * 100}%` }} />
+                  <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
+                    <div className={`h-full rounded-full ${r.color} transition-all`} style={{ width: `${(r.value / 20) * 100}%` }} />
                   </div>
                 </div>
               ))}
@@ -109,29 +122,29 @@ const Dashboard = () => {
           {/* Signal Distribution */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold">Signal Distribution</CardTitle>
+              <CardTitle className="text-sm font-semibold tracking-tight">Signal Distribution</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-3.5">
               {[
                 { label: "Safe", value: signalDistribution.safe, cls: "bg-safe" },
                 { label: "Suspicious", value: signalDistribution.suspicious, cls: "bg-warning" },
                 { label: "Dangerous", value: signalDistribution.dangerous, cls: "bg-danger" },
               ].map((s) => (
                 <div key={s.label} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2.5">
                     <div className={`h-2.5 w-2.5 rounded-full ${s.cls}`} />
                     <span className="text-sm">{s.label}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-sm font-medium">{s.value}</span>
-                    <span className="text-[10px] text-muted-foreground">({((s.value / total) * 100).toFixed(1)}%)</span>
+                    <span className="font-mono text-sm font-semibold">{s.value}</span>
+                    <span className="text-[10px] text-muted-foreground font-mono">({((s.value / total) * 100).toFixed(1)}%)</span>
                   </div>
                 </div>
               ))}
-              <div className="h-2 rounded-full bg-muted overflow-hidden flex mt-2">
-                <div className="bg-safe h-full" style={{ width: `${(signalDistribution.safe / total) * 100}%` }} />
-                <div className="bg-warning h-full" style={{ width: `${(signalDistribution.suspicious / total) * 100}%` }} />
-                <div className="bg-danger h-full" style={{ width: `${(signalDistribution.dangerous / total) * 100}%` }} />
+              <div className="h-2 rounded-full bg-secondary overflow-hidden flex mt-2">
+                <div className="bg-safe h-full transition-all" style={{ width: `${(signalDistribution.safe / total) * 100}%` }} />
+                <div className="bg-warning h-full transition-all" style={{ width: `${(signalDistribution.suspicious / total) * 100}%` }} />
+                <div className="bg-danger h-full transition-all" style={{ width: `${(signalDistribution.dangerous / total) * 100}%` }} />
               </div>
             </CardContent>
           </Card>
@@ -139,20 +152,22 @@ const Dashboard = () => {
           {/* Agent Activity */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Bot className="h-4 w-4" /> Agent Activity
+              <CardTitle className="text-sm font-semibold tracking-tight flex items-center gap-2">
+                <Bot className="h-4 w-4 text-primary" /> Agent Activity
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {agents.map((a) => (
-                <div key={a.name} className="flex items-center justify-between">
+                <div key={a.name} className="flex items-center justify-between py-0.5">
                   <div className="min-w-0">
                     <p className="text-sm font-medium truncate">{a.name}</p>
                     <p className="text-[10px] text-muted-foreground">{a.lastSignal}</p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2.5">
                     <VerdictBadge verdict={a.state} />
-                    <span className="text-xs font-mono text-muted-foreground w-8 text-right">{a.activity}%</span>
+                    <div className="w-12 h-1.5 rounded-full bg-secondary overflow-hidden">
+                      <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${a.activity}%` }} />
+                    </div>
                   </div>
                 </div>
               ))}
@@ -163,12 +178,15 @@ const Dashboard = () => {
         {/* Safety Signals Feed */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold">Safety Signals Feed</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-semibold tracking-tight">Safety Signals Feed</CardTitle>
+              <span className="text-[10px] text-muted-foreground font-mono">Live</span>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
+            <div className="space-y-0">
               {signalsFeed.map((s, i) => (
-                <div key={i} className="flex items-center justify-between py-2 border-b last:border-0">
+                <div key={i} className="flex items-center justify-between py-2.5 border-b last:border-0 group hover:bg-secondary/50 -mx-2 px-2 rounded transition-colors">
                   <div className="flex items-center gap-3 min-w-0">
                     <VerdictBadge verdict={s.severity} />
                     <div className="min-w-0">
@@ -178,7 +196,8 @@ const Dashboard = () => {
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
                     <ActionBadge action={s.action} />
-                    <span className="text-xs font-mono text-muted-foreground">{s.time}</span>
+                    <span className="text-[11px] font-mono text-muted-foreground">{s.time}</span>
+                    <ArrowUpRight className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                 </div>
               ))}
