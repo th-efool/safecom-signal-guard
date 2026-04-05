@@ -1,212 +1,178 @@
 import { AppLayout } from "@/components/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
-import { ActionBadge } from "@/components/StatusBadge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { motion } from "framer-motion";
+import { VerdictBadge, ActionBadge } from "@/components/StatusBadge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState } from "react";
 
-type Violation = {
+type Log = {
   reference_id: string;
-  threat_level: number;
-  intent_classification: string;
-  risk_status: "Safe" | "Suspicious" | "Dangerous";
-  confidence: number;
-  recommended_action: string;
-  trace: string[];
-  privacy_mode: string;
-  storage: string;
-  latency_ms: number;
   timestamp: string;
+  threat_level: number;
+  risk_status: "Safe" | "Suspicious" | "Dangerous";
+  action: "ALLOW" | "WARN" | "FLAG" | "ESCALATE";
+  confidence: number;
+  latency_ms: number;
+  trace: string;
+  privacy_mode: string;
 };
 
-const violations: Violation[] = [
+const logs: Log[] = [
   {
     reference_id: "VC-1001",
-    threat_level: 8,
-    intent_classification: "Direct Intimidation",
-    risk_status: "Dangerous",
-    confidence: 94,
-    recommended_action: "Escalate and notify platform",
-    trace: ["ThreatDetector → RiskAnalyzer → ContextValidator → ActionEngine"],
-    privacy_mode: "in-memory",
-    storage: "none",
-    latency_ms: 1842,
     timestamp: "2024-12-15 12:04:32",
+    threat_level: 8,
+    risk_status: "Dangerous",
+    action: "ESCALATE",
+    confidence: 94,
+    latency_ms: 1842,
+    trace: "ThreatDetector → RiskAnalyzer → ContextValidator → ActionEngine",
+    privacy_mode: "in-memory",
   },
   {
     reference_id: "VC-1002",
-    threat_level: 7,
-    intent_classification: "Stalking Behavior",
-    risk_status: "Dangerous",
-    confidence: 91,
-    recommended_action: "Escalate and alert safety team",
-    trace: ["ThreatDetector → ContextValidator → RiskAnalyzer → ActionEngine"],
+    timestamp: "2024-12-15 12:03:18",
+    threat_level: 6,
+    risk_status: "Suspicious",
+    action: "FLAG",
+    confidence: 74,
+    latency_ms: 1620,
+    trace: "ContextValidator → RiskAnalyzer → ActionEngine",
     privacy_mode: "in-memory",
-    storage: "none",
-    latency_ms: 1720,
-    timestamp: "2024-12-15 11:55:10",
   },
   {
     reference_id: "VC-1003",
-    threat_level: 5,
-    intent_classification: "Coercion",
-    risk_status: "Suspicious",
-    confidence: 74,
-    recommended_action: "Flag for moderation review",
-    trace: ["ContextValidator → RiskAnalyzer → ActionEngine"],
-    privacy_mode: "in-memory",
-    storage: "none",
-    latency_ms: 1390,
     timestamp: "2024-12-15 12:01:44",
+    threat_level: 4,
+    risk_status: "Safe",
+    action: "ALLOW",
+    confidence: 88,
+    latency_ms: 980,
+    trace: "All agents clear",
+    privacy_mode: "in-memory",
   },
 ];
 
-const Violations = () => {
+const AuditLogs = () => {
+  const [levelFilter, setLevelFilter] = useState("all");
+  const [actionFilter, setActionFilter] = useState("all");
+
+  const filtered = logs.filter((l) => {
+    if (levelFilter !== "all" && l.risk_status !== levelFilter) return false;
+    if (actionFilter !== "all" && l.action !== actionFilter) return false;
+    return true;
+  });
+
   return (
     <AppLayout>
-      <div className="space-y-4">
+      <div className="space-y-5">
 
         {/* HEADER */}
-        <div>
-          <h1 className="text-xl font-semibold">Violations</h1>
-          <p className="text-sm text-muted-foreground">
-            Reference-based safety events · No raw message storage
-          </p>
+        <div className="flex items-end justify-between">
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight">System Logs</h1>
+            <p className="text-sm text-muted-foreground">
+              Stateless execution stream · No message persistence
+            </p>
+          </div>
+          <span className="text-[11px] font-mono text-muted-foreground">
+            {filtered.length} executions
+          </span>
         </div>
 
-        {/* LIST */}
-        <div className="space-y-3">
-          {violations.map((v) => (
-            <Dialog key={v.reference_id}>
-              <DialogTrigger asChild>
-                <Card className="cursor-pointer hover:border-primary/40 transition-all">
+        {/* FILTERS */}
+        <div className="flex gap-3">
+          <Select value={levelFilter} onValueChange={setLevelFilter}>
+            <SelectTrigger className="w-40 h-9 text-xs">
+              <SelectValue placeholder="Threat Level" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Levels</SelectItem>
+              <SelectItem value="Safe">Safe</SelectItem>
+              <SelectItem value="Suspicious">Suspicious</SelectItem>
+              <SelectItem value="Dangerous">Dangerous</SelectItem>
+            </SelectContent>
+          </Select>
 
-                  <CardContent className="py-4">
-
-                    <div className="flex items-center justify-between">
-
-                      {/* LEFT */}
-                      <div className="flex items-center gap-4">
-                        <span className="font-mono text-xs text-muted-foreground">
-                          {v.reference_id}
-                        </span>
-
-                        <span className={`text-xs px-2 py-0.5 rounded ${
-                          v.risk_status === "Dangerous" ? "bg-danger/20 text-danger" :
-                          v.risk_status === "Suspicious" ? "bg-warning/20 text-warning" :
-                          "bg-safe/20 text-safe"
-                        }`}>
-                          {v.risk_status}
-                        </span>
-
-                        <span className="text-sm font-medium">
-                          {v.intent_classification}
-                        </span>
-                      </div>
-
-                      {/* RIGHT */}
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-mono">
-                          {(v.threat_level).toFixed(1)}/10
-                        </span>
-                        <ActionBadge action={
-                          v.risk_status === "Dangerous" ? "ESCALATE" :
-                          v.risk_status === "Suspicious" ? "FLAG" : "ALLOW"
-                        } />
-                        <span className="text-xs text-muted-foreground">
-                          {v.timestamp}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* PROGRESS BAR */}
-                    <div className="mt-3 h-1.5 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className={`h-full ${
-                          v.threat_level > 7 ? "bg-danger" :
-                          v.threat_level > 4 ? "bg-warning" : "bg-safe"
-                        }`}
-                        style={{ width: `${v.threat_level * 10}%` }}
-                      />
-                    </div>
-
-                  </CardContent>
-                </Card>
-              </DialogTrigger>
-
-              {/* MODAL */}
-              <DialogContent className="max-w-lg">
-                <DialogHeader>
-                  <DialogTitle>
-                    {v.reference_id} — System Analysis
-                  </DialogTitle>
-                </DialogHeader>
-
-                <div className="space-y-4">
-
-                  {/* THREAT */}
-                  <div className="space-y-2">
-                    <p className="text-xs text-muted-foreground">Threat Score</p>
-
-                    <div className="flex items-end gap-2">
-                      <span className="text-3xl font-bold font-mono">
-                        {v.threat_level.toFixed(1)}
-                      </span>
-                      <span className="text-sm text-muted-foreground">/10</span>
-                    </div>
-
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className={`h-full ${
-                          v.threat_level > 7 ? "bg-danger" :
-                          v.threat_level > 4 ? "bg-warning" : "bg-safe"
-                        }`}
-                        style={{ width: `${v.threat_level * 10}%` }}
-                      />
-                    </div>
-
-                    <p className="text-xs text-muted-foreground">
-                      Confidence: <span className="font-mono text-foreground">{v.confidence}%</span>
-                    </p>
-                  </div>
-
-                  {/* ACTION */}
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Recommended Action</p>
-                    <p className="text-sm font-medium">{v.recommended_action}</p>
-                  </div>
-
-                  {/* TRACE */}
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Execution Trace</p>
-                    <div className="text-xs font-mono bg-muted p-2 rounded">
-                      {v.trace[0]}
-                    </div>
-                  </div>
-
-                  {/* META */}
-                  <div className="text-xs font-mono text-muted-foreground space-y-1 pt-2 border-t">
-                    <div className="flex justify-between">
-                      <span>Latency</span>
-                      <span className="text-foreground">{v.latency_ms}ms</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Privacy Mode</span>
-                      <span className="text-foreground">{v.privacy_mode}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Storage</span>
-                      <span className="text-foreground">{v.storage}</span>
-                    </div>
-                  </div>
-
-                </div>
-              </DialogContent>
-            </Dialog>
-          ))}
+          <Select value={actionFilter} onValueChange={setActionFilter}>
+            <SelectTrigger className="w-40 h-9 text-xs">
+              <SelectValue placeholder="Action" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Actions</SelectItem>
+              <SelectItem value="ALLOW">Allow</SelectItem>
+              <SelectItem value="WARN">Warn</SelectItem>
+              <SelectItem value="FLAG">Flag</SelectItem>
+              <SelectItem value="ESCALATE">Escalate</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
+
+        {/* TABLE */}
+        <Card>
+          <CardContent className="p-0">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-secondary/50">
+                  <th className="px-4 py-3 text-[10px]">REF ID</th>
+                  <th className="px-4 py-3 text-[10px]">TIME</th>
+                  <th className="px-4 py-3 text-[10px]">THREAT</th>
+                  <th className="px-4 py-3 text-[10px]">ACTION</th>
+                  <th className="px-4 py-3 text-[10px]">CONF</th>
+                  <th className="px-4 py-3 text-[10px]">LATENCY</th>
+                  <th className="px-4 py-3 text-[10px]">TRACE</th>
+                  <th className="px-4 py-3 text-[10px]">PRIVACY</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {filtered.map((log) => (
+                  <tr key={log.reference_id} className="border-b hover:bg-secondary/30">
+
+                    <td className="px-4 py-3 font-mono text-xs">
+                      {log.reference_id}
+                    </td>
+
+                    <td className="px-4 py-3 text-[11px] font-mono text-muted-foreground">
+                      {log.timestamp}
+                    </td>
+
+                    <td className="px-4 py-3">
+                      <VerdictBadge verdict={
+                        log.risk_status === "Dangerous" ? "DANGEROUS" :
+                        log.risk_status === "Suspicious" ? "SUSPICIOUS" : "SAFE"
+                      } />
+                    </td>
+
+                    <td className="px-4 py-3">
+                      <ActionBadge action={log.action} />
+                    </td>
+
+                    <td className="px-4 py-3 text-xs font-mono">
+                      {log.confidence}%
+                    </td>
+
+                    <td className="px-4 py-3 text-xs font-mono text-muted-foreground">
+                      {log.latency_ms}ms
+                    </td>
+
+                    <td className="px-4 py-3 text-[11px] font-mono text-muted-foreground max-w-[200px] truncate">
+                      {log.trace}
+                    </td>
+
+                    <td className="px-4 py-3 text-[11px] font-mono text-muted-foreground">
+                      {log.privacy_mode}
+                    </td>
+
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </CardContent>
+        </Card>
+
       </div>
     </AppLayout>
   );
 };
 
-export default Violations;
+export default AuditLogs;
