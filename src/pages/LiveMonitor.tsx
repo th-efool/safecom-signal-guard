@@ -119,7 +119,7 @@ const LiveMonitor = () => {
                     <button
                       key={i}
                       onClick={() => setMessage(ex)}
-                      className="text-[10px] px-2 py-1 rounded bg-muted text-muted-foreground hover:bg-accent transition-colors truncate max-w-[200px]"
+                      className="text-[10px] px-2 py-1 rounded-md bg-secondary text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors truncate max-w-[200px]"
                     >
                       {ex}
                     </button>

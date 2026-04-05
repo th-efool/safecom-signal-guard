@@ -1,5 +1,5 @@
 import { AppLayout } from "@/components/AppLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { VerdictBadge, ActionBadge } from "@/components/StatusBadge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
@@ -27,15 +27,18 @@ const AuditLogs = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-4">
-        <div>
-          <h1 className="text-xl font-semibold">Audit Logs</h1>
-          <p className="text-sm text-muted-foreground">Full system signal history</p>
+      <div className="space-y-5">
+        <div className="flex items-end justify-between">
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight">Audit Logs</h1>
+            <p className="text-sm text-muted-foreground">Full system signal history</p>
+          </div>
+          <span className="text-[11px] font-mono text-muted-foreground">{filtered.length} entries</span>
         </div>
 
         <div className="flex gap-3">
           <Select value={levelFilter} onValueChange={setLevelFilter}>
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-40 h-9 text-xs">
               <SelectValue placeholder="Threat Level" />
             </SelectTrigger>
             <SelectContent>
@@ -46,7 +49,7 @@ const AuditLogs = () => {
             </SelectContent>
           </Select>
           <Select value={actionFilter} onValueChange={setActionFilter}>
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-40 h-9 text-xs">
               <SelectValue placeholder="Action" />
             </SelectTrigger>
             <SelectContent>
@@ -63,24 +66,24 @@ const AuditLogs = () => {
           <CardContent className="p-0">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b bg-muted/50">
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs">ID</th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs">Timestamp</th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs">Threat Level</th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs">Action</th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs">Agents</th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs">Message</th>
+                <tr className="border-b bg-secondary/50">
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-[10px] uppercase tracking-wider">ID</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-[10px] uppercase tracking-wider">Timestamp</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-[10px] uppercase tracking-wider">Threat Level</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-[10px] uppercase tracking-wider">Action</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-[10px] uppercase tracking-wider">Agents</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground text-[10px] uppercase tracking-wider">Message</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((log) => (
-                  <tr key={log.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
-                    <td className="px-4 py-3 font-mono text-xs">{log.id}</td>
-                    <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{log.time}</td>
+                  <tr key={log.id} className="border-b last:border-0 hover:bg-secondary/30 transition-colors">
+                    <td className="px-4 py-3 font-mono text-xs font-medium">{log.id}</td>
+                    <td className="px-4 py-3 font-mono text-[11px] text-muted-foreground">{log.time}</td>
                     <td className="px-4 py-3"><VerdictBadge verdict={log.level} /></td>
                     <td className="px-4 py-3"><ActionBadge action={log.action} /></td>
-                    <td className="px-4 py-3 text-xs text-muted-foreground">{log.agents}</td>
-                    <td className="px-4 py-3 text-xs truncate max-w-[200px]">{log.preview}</td>
+                    <td className="px-4 py-3 text-[11px] text-muted-foreground font-mono">{log.agents}</td>
+                    <td className="px-4 py-3 text-xs truncate max-w-[200px] text-muted-foreground">{log.preview}</td>
                   </tr>
                 ))}
               </tbody>
