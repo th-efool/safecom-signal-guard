@@ -32,6 +32,7 @@ const violations: Violation[] = [
     latency_ms: 1842,
     timestamp: "2024-12-15 12:04:32",
   },
+
   {
     reference_id: "VC-1002",
     threat_level: 7,
@@ -45,6 +46,7 @@ const violations: Violation[] = [
     latency_ms: 1720,
     timestamp: "2024-12-15 11:55:10",
   },
+
   {
     reference_id: "VC-1003",
     threat_level: 5,
@@ -57,6 +59,111 @@ const violations: Violation[] = [
     storage: "none",
     latency_ms: 1390,
     timestamp: "2024-12-15 12:01:44",
+  },
+
+  // 🔹 HARASSMENT
+  {
+    reference_id: "VC-1004",
+    threat_level: 6,
+    intent_classification: "Harassment",
+    risk_status: "Suspicious",
+    confidence: 79,
+    recommended_action: "Warn user and monitor behavior",
+    trace: ["ContextValidator → RiskAnalyzer → ActionEngine"],
+    privacy_mode: "in-memory",
+    storage: "none",
+    latency_ms: 1210,
+    timestamp: "2024-12-15 12:06:12",
+  },
+
+  // 🔹 HATE / ABUSIVE LANGUAGE
+  {
+    reference_id: "VC-1005",
+    threat_level: 7,
+    intent_classification: "Abusive Language",
+    risk_status: "Dangerous",
+    confidence: 88,
+    recommended_action: "Escalate for policy violation",
+    trace: ["ThreatDetector → ContextValidator → ActionEngine"],
+    privacy_mode: "in-memory",
+    storage: "none",
+    latency_ms: 1505,
+    timestamp: "2024-12-15 12:07:45",
+  },
+
+  // 🔹 SCAM / FRAUD PATTERN
+  {
+    reference_id: "VC-1006",
+    threat_level: 6,
+    intent_classification: "Scam Attempt",
+    risk_status: "Suspicious",
+    confidence: 81,
+    recommended_action: "Flag and restrict account actions",
+    trace: ["RiskAnalyzer → ContextValidator → ActionEngine"],
+    privacy_mode: "in-memory",
+    storage: "none",
+    latency_ms: 1670,
+    timestamp: "2024-12-15 12:08:21",
+  },
+
+  // 🔹 SOCIAL ENGINEERING
+  {
+    reference_id: "VC-1007",
+    threat_level: 7,
+    intent_classification: "Social Engineering",
+    risk_status: "Dangerous",
+    confidence: 86,
+    recommended_action: "Escalate and initiate verification protocol",
+    trace: ["RiskAnalyzer → ContextValidator → ActionEngine"],
+    privacy_mode: "in-memory",
+    storage: "none",
+    latency_ms: 1785,
+    timestamp: "2024-12-15 12:09:02",
+  },
+
+  // 🔹 BORDERLINE (IMPORTANT FOR REALISM)
+  {
+    reference_id: "VC-1008",
+    threat_level: 4,
+    intent_classification: "Ambiguous Threat",
+    risk_status: "Suspicious",
+    confidence: 62,
+    recommended_action: "Monitor — insufficient evidence for escalation",
+    trace: ["ContextValidator → RiskAnalyzer"],
+    privacy_mode: "in-memory",
+    storage: "none",
+    latency_ms: 1100,
+    timestamp: "2024-12-15 12:10:33",
+  },
+
+  // 🔹 LOW-RISK BUT FLAGGED PATTERN
+  {
+    reference_id: "VC-1009",
+    threat_level: 3,
+    intent_classification: "Manipulative Tone",
+    risk_status: "Suspicious",
+    confidence: 58,
+    recommended_action: "Soft flag for pattern tracking",
+    trace: ["ContextValidator → RiskAnalyzer"],
+    privacy_mode: "in-memory",
+    storage: "none",
+    latency_ms: 980,
+    timestamp: "2024-12-15 12:11:10",
+  },
+
+  // 🔹 HIGH CONFIDENCE CRITICAL
+  {
+    reference_id: "VC-1010",
+    threat_level: 9,
+    intent_classification: "Credible Violent Threat",
+    risk_status: "Dangerous",
+    confidence: 97,
+    recommended_action: "Immediate escalation and emergency protocol",
+    trace: ["ThreatDetector → RiskAnalyzer → ContextValidator → ActionEngine"],
+    privacy_mode: "in-memory",
+    storage: "none",
+    latency_ms: 2010,
+    timestamp: "2024-12-15 12:12:48",
   },
 ];
 
