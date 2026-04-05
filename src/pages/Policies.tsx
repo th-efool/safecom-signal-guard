@@ -1,10 +1,10 @@
 import { AppLayout } from "@/components/AppLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { ActionBadge } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, ArrowRight } from "lucide-react";
 
 const initialPolicies = [
   { id: 1, condition: "Threat confidence > 0.85", action: "ESCALATE" as const, enabled: true },
@@ -24,25 +24,26 @@ const Policies = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
+      <div className="space-y-5">
+        <div className="flex items-end justify-between">
           <div>
-            <h1 className="text-xl font-semibold">Policies</h1>
+            <h1 className="text-xl font-semibold tracking-tight">Policies</h1>
             <p className="text-sm text-muted-foreground">Safety rules that influence thresholds and escalation</p>
           </div>
-          <Button size="sm" variant="outline">
-            <Plus className="h-4 w-4 mr-1" /> Add Policy
+          <Button size="sm" variant="outline" className="h-8 text-xs">
+            <Plus className="h-3.5 w-3.5 mr-1" /> Add Policy
           </Button>
         </div>
 
         <div className="space-y-3">
           {policies.map((policy) => (
-            <Card key={policy.id} className={`${!policy.enabled ? "opacity-50" : ""} transition-opacity`}>
+            <Card key={policy.id} className={`${!policy.enabled ? "opacity-40" : ""} transition-all hover:shadow-md`}>
               <CardContent className="py-4 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="text-xs font-mono px-2 py-1 bg-muted rounded">IF</div>
-                  <span className="text-sm">{policy.condition}</span>
-                  <div className="text-xs font-mono px-2 py-1 bg-muted rounded">THEN</div>
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] font-mono font-semibold px-2 py-1 bg-secondary rounded-md text-muted-foreground uppercase tracking-wide">IF</span>
+                  <span className="text-sm font-mono">{policy.condition}</span>
+                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="text-[10px] font-mono font-semibold px-2 py-1 bg-secondary rounded-md text-muted-foreground uppercase tracking-wide">THEN</span>
                   <ActionBadge action={policy.action} />
                 </div>
                 <Switch checked={policy.enabled} onCheckedChange={() => togglePolicy(policy.id)} />

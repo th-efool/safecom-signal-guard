@@ -6,51 +6,45 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 222 47% 11%;
+    --background: 0 0% 98.5%;
+    --foreground: 240 6% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 240 6% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 240 6% 10%;
 
-    --primary: 330 81% 50%;
+    --primary: 348 83% 47%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 348 20% 96%;
+    --secondary-foreground: 240 6% 10%;
 
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 240 5% 94%;
+    --muted-foreground: 240 4% 46%;
 
-    --accent: 330 90% 96%;
-    --accent-foreground: 330 81% 50%;
+    --accent: 348 30% 95%;
+    --accent-foreground: 348 83% 40%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 330 81% 50%;
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 348 83% 47%;
 
     --radius: 0.5rem;
 
-    /* SafeCom custom tokens */
-    --safe: 142 72% 29%;
+    /* Status tokens */
+    --safe: 152 60% 36%;
     --safe-foreground: 0 0% 100%;
-    --warning: 32 95% 44%;
+    --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
-    --danger: 0 73% 42%;
+    --danger: 0 72% 51%;
     --danger-foreground: 0 0% 100%;
 
-    --sidebar-bg: 348 30% 8%;
-    --sidebar-fg: 348 15% 60%;
-    --sidebar-active: 348 83% 56%;
-    --sidebar-hover: 348 25% 13%;
-
-    --surface-subtle: 348 80% 97%;
-
+    /* Sidebar — deep crimson-charcoal */
     --sidebar-background: 348 30% 8%;
     --sidebar-foreground: 348 15% 60%;
     --sidebar-primary: 348 83% 56%;
@@ -83,15 +77,15 @@
     @apply bg-danger text-danger-foreground;
   }
   .status-safe-subtle {
-    background-color: hsl(var(--safe) / 0.1);
+    background-color: hsl(var(--safe) / 0.08);
     color: hsl(var(--safe));
   }
   .status-warning-subtle {
-    background-color: hsl(var(--warning) / 0.1);
+    background-color: hsl(var(--warning) / 0.08);
     color: hsl(var(--warning));
   }
   .status-danger-subtle {
-    background-color: hsl(var(--danger) / 0.1);
+    background-color: hsl(var(--danger) / 0.08);
     color: hsl(var(--danger));
   }
 }

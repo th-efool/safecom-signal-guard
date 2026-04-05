@@ -92,9 +92,12 @@ const LiveMonitor = () => {
   return (
     <AppLayout>
       <div className="space-y-4">
-        <div>
-          <h1 className="text-xl font-semibold">Live Monitor</h1>
-          <p className="text-sm text-muted-foreground">Real-time safety analysis pipeline</p>
+        <div className="flex items-end justify-between">
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight">Live Monitor</h1>
+            <p className="text-sm text-muted-foreground">Real-time safety analysis pipeline</p>
+          </div>
+          <span className="text-[11px] font-mono text-muted-foreground">Pipeline ready</span>
         </div>
 
         <div className="grid grid-cols-3 gap-4 h-[calc(100vh-180px)]">
@@ -116,7 +119,7 @@ const LiveMonitor = () => {
                     <button
                       key={i}
                       onClick={() => setMessage(ex)}
-                      className="text-[10px] px-2 py-1 rounded bg-muted text-muted-foreground hover:bg-accent transition-colors truncate max-w-[200px]"
+                      className="text-[10px] px-2 py-1 rounded-md bg-secondary text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors truncate max-w-[200px]"
                     >
                       {ex}
                     </button>
