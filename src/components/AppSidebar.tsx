@@ -50,7 +50,7 @@ export function AppSidebar() {
         <div className={`px-4 py-5 ${collapsed ? "px-2" : ""}`}>
           {!collapsed ? (
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-sidebar-primary to-blue-400 flex items-center justify-center shadow-lg shadow-blue-500/20">
+              <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-sidebar-primary to-rose-400 flex items-center justify-center shadow-lg shadow-rose-500/20">
                 <Shield className="h-4.5 w-4.5 text-sidebar-primary-foreground" />
               </div>
               <div>
@@ -60,7 +60,7 @@ export function AppSidebar() {
             </div>
           ) : (
             <div className="flex justify-center">
-              <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-sidebar-primary to-blue-400 flex items-center justify-center shadow-lg shadow-blue-500/20">
+              <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-sidebar-primary to-rose-400 flex items-center justify-center shadow-lg shadow-rose-500/20">
                 <Shield className="h-4.5 w-4.5 text-sidebar-primary-foreground" />
               </div>
             </div>
