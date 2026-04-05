@@ -1,56 +1,62 @@
 import { AppLayout } from "@/components/AppLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { VerdictBadge, ActionBadge } from "@/components/StatusBadge";
+import { Card, CardContent } from "@/components/ui/card";
+import { ActionBadge } from "@/components/StatusBadge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { motion } from "framer-motion";
 
-const violations = [
+type Violation = {
+  reference_id: string;
+  threat_level: number;
+  intent_classification: string;
+  risk_status: "Safe" | "Suspicious" | "Dangerous";
+  confidence: number;
+  recommended_action: string;
+  trace: string[];
+  privacy_mode: string;
+  storage: string;
+  latency_ms: number;
+  timestamp: string;
+};
+
+const violations: Violation[] = [
   {
-    id: "VIO-001",
-    category: "Threat",
-    severity: "DANGEROUS" as const,
-    confidence: 0.94,
-    agent: "Threat Detector",
-    action: "ESCALATE" as const,
-    message: "I will find you and make you regret this",
-    time: "2024-12-15 12:04:32",
-    agents: [
-      { name: "Threat Detector", verdict: "DANGEROUS" as const, confidence: 0.94, reasoning: "Direct threat with violent intent" },
-      { name: "Context Analyzer", verdict: "DANGEROUS" as const, confidence: 0.88, reasoning: "Personal targeting detected" },
-      { name: "Risk Analyzer", verdict: "SUSPICIOUS" as const, confidence: 0.72, reasoning: "Elevated risk pattern" },
-    ],
-    decisionReasoning: "High-confidence threat detection (0.94) with consistent dangerous signals across multiple agents. Automatic escalation triggered.",
+    reference_id: "VC-1001",
+    threat_level: 8,
+    intent_classification: "Direct Intimidation",
+    risk_status: "Dangerous",
+    confidence: 94,
+    recommended_action: "Escalate and notify platform",
+    trace: ["ThreatDetector → RiskAnalyzer → ContextValidator → ActionEngine"],
+    privacy_mode: "in-memory",
+    storage: "none",
+    latency_ms: 1842,
+    timestamp: "2024-12-15 12:04:32",
   },
   {
-    id: "VIO-002",
-    category: "Stalking",
-    severity: "DANGEROUS" as const,
-    confidence: 0.91,
-    agent: "Threat Detector",
-    action: "ESCALATE" as const,
-    message: "I know where you live. Don't test me.",
-    time: "2024-12-15 11:55:10",
-    agents: [
-      { name: "Threat Detector", verdict: "DANGEROUS" as const, confidence: 0.91, reasoning: "Location-based threat detected" },
-      { name: "Context Analyzer", verdict: "DANGEROUS" as const, confidence: 0.82, reasoning: "Stalking behavior pattern" },
-      { name: "Risk Analyzer", verdict: "SUSPICIOUS" as const, confidence: 0.78, reasoning: "High personal risk indicators" },
-    ],
-    decisionReasoning: "Stalking-pattern threat with location awareness. Multiple agents converged on DANGEROUS verdict.",
+    reference_id: "VC-1002",
+    threat_level: 7,
+    intent_classification: "Stalking Behavior",
+    risk_status: "Dangerous",
+    confidence: 91,
+    recommended_action: "Escalate and alert safety team",
+    trace: ["ThreatDetector → ContextValidator → RiskAnalyzer → ActionEngine"],
+    privacy_mode: "in-memory",
+    storage: "none",
+    latency_ms: 1720,
+    timestamp: "2024-12-15 11:55:10",
   },
   {
-    id: "VIO-003",
-    category: "Coercion",
-    severity: "SUSPICIOUS" as const,
-    confidence: 0.74,
-    agent: "Context Analyzer",
-    action: "FLAG" as const,
-    message: "If you don't do what I say, there will be consequences",
-    time: "2024-12-15 12:01:44",
-    agents: [
-      { name: "Threat Detector", verdict: "SUSPICIOUS" as const, confidence: 0.61, reasoning: "Conditional threat language" },
-      { name: "Context Analyzer", verdict: "SUSPICIOUS" as const, confidence: 0.74, reasoning: "Coercive phrasing detected" },
-      { name: "Risk Analyzer", verdict: "SAFE" as const, confidence: 0.45, reasoning: "Moderate manipulation pattern" },
-    ],
-    decisionReasoning: "Coercive language pattern detected. Flagged for human review due to moderate confidence.",
+    reference_id: "VC-1003",
+    threat_level: 5,
+    intent_classification: "Coercion",
+    risk_status: "Suspicious",
+    confidence: 74,
+    recommended_action: "Flag for moderation review",
+    trace: ["ContextValidator → RiskAnalyzer → ActionEngine"],
+    privacy_mode: "in-memory",
+    storage: "none",
+    latency_ms: 1390,
+    timestamp: "2024-12-15 12:01:44",
   },
 ];
 
@@ -58,70 +64,141 @@ const Violations = () => {
   return (
     <AppLayout>
       <div className="space-y-4">
+
+        {/* HEADER */}
         <div>
           <h1 className="text-xl font-semibold">Violations</h1>
-          <p className="text-sm text-muted-foreground">Flagged and escalated interactions</p>
+          <p className="text-sm text-muted-foreground">
+            Reference-based safety events · No raw message storage
+          </p>
         </div>
 
+        {/* LIST */}
         <div className="space-y-3">
           {violations.map((v) => (
-            <Dialog key={v.id}>
+            <Dialog key={v.reference_id}>
               <DialogTrigger asChild>
-                <Card className="cursor-pointer hover:border-primary/30 transition-colors">
+                <Card className="cursor-pointer hover:border-primary/40 transition-all">
+
                   <CardContent className="py-4">
+
                     <div className="flex items-center justify-between">
+
+                      {/* LEFT */}
                       <div className="flex items-center gap-4">
-                        <span className="font-mono text-xs text-muted-foreground">{v.id}</span>
-                        <VerdictBadge verdict={v.severity} />
-                        <span className="text-sm font-medium">{v.category}</span>
-                        <span className="text-xs text-muted-foreground">by {v.agent}</span>
+                        <span className="font-mono text-xs text-muted-foreground">
+                          {v.reference_id}
+                        </span>
+
+                        <span className={`text-xs px-2 py-0.5 rounded ${
+                          v.risk_status === "Dangerous" ? "bg-danger/20 text-danger" :
+                          v.risk_status === "Suspicious" ? "bg-warning/20 text-warning" :
+                          "bg-safe/20 text-safe"
+                        }`}>
+                          {v.risk_status}
+                        </span>
+
+                        <span className="text-sm font-medium">
+                          {v.intent_classification}
+                        </span>
                       </div>
+
+                      {/* RIGHT */}
                       <div className="flex items-center gap-3">
-                        <span className="text-xs font-mono text-muted-foreground">{v.confidence.toFixed(2)}</span>
-                        <ActionBadge action={v.action} />
-                        <span className="text-xs text-muted-foreground">{v.time}</span>
+                        <span className="text-xs font-mono">
+                          {(v.threat_level).toFixed(1)}/10
+                        </span>
+                        <ActionBadge action={
+                          v.risk_status === "Dangerous" ? "ESCALATE" :
+                          v.risk_status === "Suspicious" ? "FLAG" : "ALLOW"
+                        } />
+                        <span className="text-xs text-muted-foreground">
+                          {v.timestamp}
+                        </span>
                       </div>
                     </div>
-                    <p className="text-sm text-muted-foreground mt-2 truncate">{v.message}</p>
+
+                    {/* PROGRESS BAR */}
+                    <div className="mt-3 h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className={`h-full ${
+                          v.threat_level > 7 ? "bg-danger" :
+                          v.threat_level > 4 ? "bg-warning" : "bg-safe"
+                        }`}
+                        style={{ width: `${v.threat_level * 10}%` }}
+                      />
+                    </div>
+
                   </CardContent>
                 </Card>
               </DialogTrigger>
+
+              {/* MODAL */}
               <DialogContent className="max-w-lg">
                 <DialogHeader>
-                  <DialogTitle className="flex items-center gap-2">
-                    {v.id} — {v.category} Violation
+                  <DialogTitle>
+                    {v.reference_id} — System Analysis
                   </DialogTitle>
                 </DialogHeader>
+
                 <div className="space-y-4">
-                  <div className="p-3 bg-muted rounded-lg">
-                    <p className="text-xs text-muted-foreground mb-1">Original Message</p>
-                    <p className="text-sm font-mono">"{v.message}"</p>
+
+                  {/* THREAT */}
+                  <div className="space-y-2">
+                    <p className="text-xs text-muted-foreground">Threat Score</p>
+
+                    <div className="flex items-end gap-2">
+                      <span className="text-3xl font-bold font-mono">
+                        {v.threat_level.toFixed(1)}
+                      </span>
+                      <span className="text-sm text-muted-foreground">/10</span>
+                    </div>
+
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className={`h-full ${
+                          v.threat_level > 7 ? "bg-danger" :
+                          v.threat_level > 4 ? "bg-warning" : "bg-safe"
+                        }`}
+                        style={{ width: `${v.threat_level * 10}%` }}
+                      />
+                    </div>
+
+                    <p className="text-xs text-muted-foreground">
+                      Confidence: <span className="font-mono text-foreground">{v.confidence}%</span>
+                    </p>
                   </div>
+
+                  {/* ACTION */}
                   <div>
-                    <p className="text-xs text-muted-foreground mb-2">Agent Outputs</p>
-                    <div className="space-y-2">
-                      {v.agents.map((a) => (
-                        <div key={a.name} className="p-2 border rounded text-sm">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="font-medium">{a.name}</span>
-                            <div className="flex items-center gap-2">
-                              <span className="font-mono text-xs">{a.confidence.toFixed(2)}</span>
-                              <VerdictBadge verdict={a.verdict} />
-                            </div>
-                          </div>
-                          <p className="text-xs text-muted-foreground italic">{a.reasoning}</p>
-                        </div>
-                      ))}
+                    <p className="text-xs text-muted-foreground mb-1">Recommended Action</p>
+                    <p className="text-sm font-medium">{v.recommended_action}</p>
+                  </div>
+
+                  {/* TRACE */}
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Execution Trace</p>
+                    <div className="text-xs font-mono bg-muted p-2 rounded">
+                      {v.trace[0]}
                     </div>
                   </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Decision Reasoning</p>
-                    <p className="text-sm bg-muted p-2 rounded">{v.decisionReasoning}</p>
+
+                  {/* META */}
+                  <div className="text-xs font-mono text-muted-foreground space-y-1 pt-2 border-t">
+                    <div className="flex justify-between">
+                      <span>Latency</span>
+                      <span className="text-foreground">{v.latency_ms}ms</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Privacy Mode</span>
+                      <span className="text-foreground">{v.privacy_mode}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Storage</span>
+                      <span className="text-foreground">{v.storage}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>Detected: {v.time}</span>
-                    <ActionBadge action={v.action} />
-                  </div>
+
                 </div>
               </DialogContent>
             </Dialog>
