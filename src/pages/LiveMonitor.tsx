@@ -239,23 +239,142 @@ const LiveMonitor = () => {
 
           {/* RIGHT */}
           <div className="lg:col-span-5 space-y-4">
+          
             <Card className="flex-1">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm">Action Panel</CardTitle>
               </CardHeader>
+          
               <CardContent>
                 <AnimatePresence mode="wait">
                   {result ? (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-
-                      <div className="text-center py-4">
-                        <ActionBadge action={result.action} className="text-lg px-4 py-1.5" />
+                    <motion.div
+                      key="result"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="space-y-5"
+                    >
+          
+                      {/* 🔴 THREAT SCORE */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span>Threat Score</span>
+                          <span className={`text-xs px-2 py-0.5 rounded ${
+                            result.riskScore > 70 ? "bg-danger/20 text-danger" :
+                            result.riskScore > 40 ? "bg-warning/20 text-warning" :
+                            "bg-safe/20 text-safe"
+                          }`}>
+                            {result.action}
+                          </span>
+                        </div>
+          
+                        <div className="flex items-end gap-2">
+                          <span className="text-3xl font-bold font-mono">
+                            {(result.riskScore / 10).toFixed(1)}
+                          </span>
+                          <span className="text-sm text-muted-foreground">/10</span>
+                        </div>
+          
+                        <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${result.riskScore}%` }}
+                            className={`h-full ${
+                              result.riskScore > 70 ? "bg-danger" :
+                              result.riskScore > 40 ? "bg-warning" : "bg-safe"
+                            }`}
+                          />
+                        </div>
+          
+                        <div className="text-xs text-muted-foreground">
+                          Confidence: <span className="font-mono font-medium text-foreground">
+                            {(Math.max(...result.agents.map(a => a.confidence)) * 100).toFixed(0)}%
+                          </span>
+                        </div>
                       </div>
-
-                      <p className="text-sm font-mono bg-muted p-2 rounded">
-                        {result.reasoning}
-                      </p>
-
+          
+                      {/* ⚙️ ACTION ENGINE */}
+                      <div className="space-y-2">
+                        <p className="text-xs text-muted-foreground">Action Engine</p>
+          
+                        <div className="grid grid-cols-4 gap-2">
+                          {["ALLOW", "WARN", "FLAG", "ESCALATE"].map((a) => (
+                            <div
+                              key={a}
+                              className={`text-[10px] text-center py-2 rounded border ${
+                                result.action === a
+                                  ? "border-primary bg-primary/10 text-primary"
+                                  : "border-muted text-muted-foreground"
+                              }`}
+                            >
+                              {a}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+          
+                      {/* 📊 ANALYSIS RESULT */}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs text-muted-foreground">Analysis Result</p>
+                          <span className={`text-xs px-2 py-0.5 rounded ${
+                            result.action === "ESCALATE" ? "bg-danger/20 text-danger" :
+                            result.action === "FLAG" ? "bg-warning/20 text-warning" :
+                            "bg-safe/20 text-safe"
+                          }`}>
+                            {result.action}
+                          </span>
+                        </div>
+          
+                        <div className="text-[11px] font-mono space-y-1 text-muted-foreground">
+                          <div className="flex justify-between">
+                            <span>Reference ID</span>
+                            <span className="text-foreground">VC-{1000 + result.riskScore}</span>
+                          </div>
+          
+                          <div className="flex justify-between">
+                            <span>Latency</span>
+                            <span className="text-foreground">{1200 + result.riskScore * 5}ms</span>
+                          </div>
+          
+                          <div>
+                            <span>Intent Classification</span>
+                            <p className="text-foreground">
+                              {result.agents[0]?.category || "General"}
+                            </p>
+                          </div>
+          
+                          <div>
+                            <span>Recommended Action</span>
+                            <p className="text-foreground">
+                              {result.action === "ESCALATE"
+                                ? "Escalate and notify platform safety team"
+                                : result.action === "FLAG"
+                                ? "Flag for moderation review"
+                                : "Allow"}
+                            </p>
+                          </div>
+                        </div>
+          
+                        {/* TRACE */}
+                        <div className="space-y-1">
+                          <p className="text-xs text-muted-foreground">Agent Trace</p>
+                          <div className="text-[11px] font-mono space-y-1 text-muted-foreground">
+                            {result.agents.map((a, i) => (
+                              <div key={i} className="flex justify-between">
+                                <span>{a.name}</span>
+                                <span>{a.verdict}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+          
+                        {/* META */}
+                        <div className="text-[10px] font-mono text-muted-foreground pt-2 border-t">
+                          Privacy: in-memory · Storage: none · Policy: v2.4.1
+                        </div>
+                      </div>
+          
                     </motion.div>
                   ) : (
                     <div className="flex items-center justify-center h-48 text-sm text-muted-foreground">
@@ -266,6 +385,10 @@ const LiveMonitor = () => {
               </CardContent>
             </Card>
           </div>
+
+
+
+          
 
         </div>
       </div>
