@@ -22,7 +22,14 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<LandingPage />} />
+          <Route path="/"
+            element={
+              <iframe
+                src="/landingpage.html"
+                className="w-full h-screen border-0"
+              />
+            }
+          />          
           <Route path="/dashboard" element={<Index />} />
           <Route path="/monitor" element={<LiveMonitor />} />
           <Route path="/audit" element={<AuditLogs />} />
