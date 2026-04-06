@@ -68,7 +68,13 @@
   height: 6px;
 }
 
-/* COLORS */
+/* SLIDER TRACK */
+[data-radix-slider-track] {
+  background: rgba(0,0,0,0.2);
+  height: 6px;
+}
+
+/* RANGE COLORS */
 .slider-red [data-radix-slider-range] {
   background: #C2185B;
 }
@@ -79,6 +85,12 @@
 
 .slider-green [data-radix-slider-range] {
   background: #10B981;
+}
+
+/* THUMB */
+[data-radix-slider-thumb] {
+  background: white;
+  border: 2px solid black;
 }
 
 /* THUMB */
