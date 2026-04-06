@@ -1,13 +1,12 @@
 import { AppLayout } from "@/components/AppLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { VerdictBadge, ActionBadge } from "@/components/StatusBadge";
-import { Shield, AlertTriangle, TrendingUp, Activity, Bot, ArrowUpRight } from "lucide-react";
+import { Shield, AlertTriangle, TrendingUp, Activity } from "lucide-react";
 
 const riskSurface = [
-  { label: "Harassment", value: 12, color: "bg-primary" },
+  { label: "Harassment", value: 12, color: "bg-black" },
   { label: "Threat", value: 8, color: "bg-danger" },
   { label: "Coercion", value: 5, color: "bg-warning" },
-  { label: "Stalking", value: 3, color: "bg-muted-foreground" },
+  { label: "Stalking", value: 3, color: "bg-black/40" },
 ];
 
 const signalDistribution = {
@@ -37,173 +36,215 @@ const statCards = [
     value: "SAFE",
     valueClass: "text-safe",
     icon: Shield,
-    iconClass: "text-safe",
     subtle: "No active threats",
   },
   {
     label: "Governance Confidence",
     value: "96.4%",
-    valueClass: "text-foreground",
+    valueClass: "text-black",
     icon: Activity,
-    iconClass: "text-primary",
     subtle: "+2.1% from last hour",
   },
   {
     label: "Active Threats",
     value: "3",
-    valueClass: "text-foreground",
+    valueClass: "text-black",
     icon: AlertTriangle,
-    iconClass: "text-warning",
     subtle: "2 flagged, 1 escalated",
   },
   {
     label: "Escalation Rate",
     value: "0.7%",
-    valueClass: "text-foreground",
+    valueClass: "text-black",
     icon: TrendingUp,
-    iconClass: "text-muted-foreground",
     subtle: "Below threshold",
   },
 ];
 
 const Dashboard = () => {
-  const total = signalDistribution.safe + signalDistribution.suspicious + signalDistribution.dangerous;
+  const total =
+    signalDistribution.safe +
+    signalDistribution.suspicious +
+    signalDistribution.dangerous;
 
   return (
     <AppLayout>
-      <div className="space-y-6">
-        <div className="flex items-end justify-between">
+      <div className="space-y-10">
+
+        {/* HEADER */}
+        <div className="flex items-end justify-between border-b border-black pb-4">
           <div>
-            <h1 className="text-xl font-semibold tracking-tight">System Posture</h1>
-            <p className="text-sm text-muted-foreground">Overall safety state and operational trends</p>
+            <h1 className="text-2xl font-semibold tracking-tight uppercase">
+              System Posture
+            </h1>
+            <p className="font-mono text-xs text-black/60 mt-1">
+              &gt; GLOBAL SAFETY STATE / LIVE SIGNAL OVERVIEW
+            </p>
           </div>
-          <span className="text-[11px] font-mono text-muted-foreground">Last updated: just now</span>
+
+          <span className="font-mono text-xs border border-black px-2 py-1">
+            STATUS: ONLINE
+          </span>
         </div>
 
-        {/* Stat Cards */}
-        <div className="grid grid-cols-4 gap-4">
-          {statCards.map((card) => (
-            <Card key={card.label} className="group hover:shadow-md transition-shadow">
-              <CardContent className="pt-5 pb-4">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-[11px] text-muted-foreground font-medium uppercase tracking-wide">{card.label}</span>
-                  <div className="h-8 w-8 rounded-lg bg-secondary flex items-center justify-center">
-                    <card.icon className={`h-4 w-4 ${card.iconClass}`} />
-                  </div>
-                </div>
-                <span className={`text-2xl font-bold tracking-tight ${card.valueClass}`}>{card.value}</span>
-                <p className="text-[10px] text-muted-foreground mt-1">{card.subtle}</p>
-              </CardContent>
-            </Card>
+        {/* SYSTEM METRICS STRIP */}
+        <div className="grid grid-cols-4 border border-black">
+          {statCards.map((card, i) => (
+            <div
+              key={card.label}
+              className={`p-4 ${
+                i !== statCards.length - 1 ? "border-r border-black" : ""
+              }`}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono text-[10px] uppercase text-black/50">
+                  {card.label}
+                </span>
+                <card.icon className="w-4 h-4" />
+              </div>
+
+              <div className={`text-2xl font-semibold ${card.valueClass}`}>
+                {card.value}
+              </div>
+
+              <p className="font-mono text-[10px] text-black/50 mt-1">
+                {card.subtle}
+              </p>
+            </div>
           ))}
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
-          {/* Risk Surface */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold tracking-tight">Risk Surface</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3.5">
-              {riskSurface.map((r) => (
-                <div key={r.label} className="space-y-1.5">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">{r.label}</span>
-                    <span className="font-mono font-semibold">{r.value}</span>
-                  </div>
-                  <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
-                    <div className={`h-full rounded-full ${r.color} transition-all`} style={{ width: `${(r.value / 20) * 100}%` }} />
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+        {/* PIPELINE SECTION */}
+        <div className="grid grid-cols-3 gap-6">
 
-          {/* Signal Distribution */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold tracking-tight">Signal Distribution</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3.5">
-              {[
-                { label: "Safe", value: signalDistribution.safe, cls: "bg-safe" },
-                { label: "Suspicious", value: signalDistribution.suspicious, cls: "bg-warning" },
-                { label: "Dangerous", value: signalDistribution.dangerous, cls: "bg-danger" },
-              ].map((s) => (
-                <div key={s.label} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className={`h-2.5 w-2.5 rounded-full ${s.cls}`} />
-                    <span className="text-sm">{s.label}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-sm font-semibold">{s.value}</span>
-                    <span className="text-[10px] text-muted-foreground font-mono">({((s.value / total) * 100).toFixed(1)}%)</span>
-                  </div>
+          {/* STEP 1 */}
+          <div className="brutal-border brutal-shadow p-5">
+            <div className="font-mono text-[10px] mb-3 text-black/50">
+              01 / RISK SURFACE
+            </div>
+
+            {riskSurface.map((r) => (
+              <div key={r.label} className="mb-3">
+                <div className="flex justify-between text-xs">
+                  <span>{r.label}</span>
+                  <span className="font-mono">{r.value}</span>
                 </div>
-              ))}
-              <div className="h-2 rounded-full bg-secondary overflow-hidden flex mt-2">
-                <div className="bg-safe h-full transition-all" style={{ width: `${(signalDistribution.safe / total) * 100}%` }} />
-                <div className="bg-warning h-full transition-all" style={{ width: `${(signalDistribution.suspicious / total) * 100}%` }} />
-                <div className="bg-danger h-full transition-all" style={{ width: `${(signalDistribution.dangerous / total) * 100}%` }} />
+
+                <div className="h-[2px] bg-black/10 mt-1">
+                  <div
+                    className={`${r.color} h-full`}
+                    style={{ width: `${(r.value / 20) * 100}%` }}
+                  />
+                </div>
               </div>
-            </CardContent>
-          </Card>
+            ))}
+          </div>
 
-          {/* Agent Activity */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold tracking-tight flex items-center gap-2">
-                <Bot className="h-4 w-4 text-primary" /> Agent Activity
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {agents.map((a) => (
-                <div key={a.name} className="flex items-center justify-between py-0.5">
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium truncate">{a.name}</p>
-                    <p className="text-[10px] text-muted-foreground">{a.lastSignal}</p>
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <VerdictBadge verdict={a.state} />
-                    <div className="w-12 h-1.5 rounded-full bg-secondary overflow-hidden">
-                      <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${a.activity}%` }} />
-                    </div>
+          {/* STEP 2 */}
+          <div className="brutal-border brutal-shadow p-5">
+            <div className="font-mono text-[10px] mb-3 text-black/50">
+              02 / SIGNAL DISTRIBUTION
+            </div>
+
+            {[
+              { label: "Safe", value: signalDistribution.safe },
+              { label: "Suspicious", value: signalDistribution.suspicious },
+              { label: "Dangerous", value: signalDistribution.dangerous },
+            ].map((s) => (
+              <div key={s.label} className="flex justify-between mb-2 text-sm">
+                <span>{s.label}</span>
+                <span className="font-mono">{s.value}</span>
+              </div>
+            ))}
+
+            <div className="flex h-1 mt-3">
+              <div
+                className="bg-safe"
+                style={{ width: `${(signalDistribution.safe / total) * 100}%` }}
+              />
+              <div
+                className="bg-warning"
+                style={{
+                  width: `${(signalDistribution.suspicious / total) * 100}%`,
+                }}
+              />
+              <div
+                className="bg-danger"
+                style={{
+                  width: `${(signalDistribution.dangerous / total) * 100}%`,
+                }}
+              />
+            </div>
+          </div>
+
+          {/* STEP 3 */}
+          <div className="brutal-border brutal-shadow p-5">
+            <div className="font-mono text-[10px] mb-3 text-black/50">
+              03 / AGENT ACTIVITY
+            </div>
+
+            {agents.map((a) => (
+              <div
+                key={a.name}
+                className="flex justify-between items-center mb-3"
+              >
+                <div>
+                  <p className="text-sm">{a.name}</p>
+                  <p className="font-mono text-[10px] text-black/50">
+                    {a.lastSignal}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <VerdictBadge verdict={a.state} />
+                  <div className="w-12 h-[2px] bg-black/10">
+                    <div
+                      className="bg-black h-full"
+                      style={{ width: `${a.activity}%` }}
+                    />
                   </div>
                 </div>
-              ))}
-            </CardContent>
-          </Card>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Safety Signals Feed */}
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-semibold tracking-tight">Safety Signals Feed</CardTitle>
-              <span className="text-[10px] text-muted-foreground font-mono">Live</span>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-0">
-              {signalsFeed.map((s, i) => (
-                <div key={i} className="flex items-center justify-between py-2.5 border-b last:border-0 group hover:bg-secondary/50 -mx-2 px-2 rounded transition-colors">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <VerdictBadge verdict={s.severity} />
-                    <div className="min-w-0">
-                      <p className="text-sm truncate">{s.issue}</p>
-                      <p className="text-[10px] text-muted-foreground">{s.category}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 shrink-0">
-                    <ActionBadge action={s.action} />
-                    <span className="text-[11px] font-mono text-muted-foreground">{s.time}</span>
-                    <ArrowUpRight className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+        {/* TELEMETRY LOG */}
+        <div className="brutal-border brutal-shadow">
+
+          <div className="border-b border-black p-3 flex justify-between font-mono text-xs uppercase">
+            <span>Live Signal Trace</span>
+            <span className="animate-blink">_</span>
+          </div>
+
+          <div className="p-3 space-y-3">
+            {signalsFeed.map((s, i) => (
+              <div
+                key={i}
+                className="flex justify-between items-center border-b border-black/10 pb-2"
+              >
+                <div className="flex items-center gap-3">
+                  <VerdictBadge verdict={s.severity} />
+
+                  <div>
+                    <p className="text-sm">{s.issue}</p>
+                    <p className="font-mono text-[10px] text-black/50">
+                      {s.category}
+                    </p>
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+
+                <div className="flex items-center gap-3">
+                  <ActionBadge action={s.action} />
+                  <span className="font-mono text-xs text-black/50">
+                    {s.time}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </AppLayout>
   );
