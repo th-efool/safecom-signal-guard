@@ -79,11 +79,19 @@ const Agents = () => {
                 </div>
 
                 {/* CONTROL */}
-                <Switch
-                  checked={agent.enabled}
-                  onCheckedChange={() => toggleAgent(agent.id)}
-                />
+              <Switch
+                checked={agent.enabled}
+                onCheckedChange={() => toggleAgent(agent.id)}
+                className="
+                  data-[state=checked]:bg-black 
+                  data-[state=unchecked]:bg-white 
+                  border border-black
+                  relative
+                "
+              />
               </div>
+
+
 
               {/* METRICS */}
               <div className="grid grid-cols-3 gap-4 border-t border-black pt-3">
