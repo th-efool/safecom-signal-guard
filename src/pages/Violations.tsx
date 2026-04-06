@@ -115,11 +115,7 @@ const Violations = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="
-                fixed inset-0 z-[999]
-                bg-black/70 backdrop-blur-[2px]
-                flex items-center justify-center
-              "
+              className="fixed inset-0 z-[999] bg-black/70 backdrop-blur-[2px] flex items-center justify-center"
               onClick={() => setActive(null)}
             >
               <motion.div
