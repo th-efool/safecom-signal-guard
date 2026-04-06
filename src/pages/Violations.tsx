@@ -175,90 +175,29 @@ const Violations = () => {
 
         {/* MODAL */}
         {typeof document !== "undefined" && (
-          <AnimatePresence>
-            {active &&
-              createPortal(
-                <motion.div
-                  className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-sm flex items-center justify-center"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  onClick={() => setActive(null)}
-                >
-                  <motion.div
-                    onClick={(e) => e.stopPropagation()}
-                    initial={{ scale: 0.95 }}
-                    animate={{ scale: 1 }}
-                    exit={{ scale: 0.95 }}
-                    className="bg-white border-2 border-black p-6 w-[460px] shadow-[8px_8px_0px_black] relative"
-                  >
-                    <div className="absolute top-0 left-0 w-full h-[3px] bg-red-600" />
-
-                    <div className="flex justify-between items-center mb-4">
-                      <h2 className="font-semibold">
-                        {active.reference_id} — Analysis
-                      </h2>
-
-                      <button
-                        onClick={() => setActive(null)}
-                        className="border border-black px-2 text-xs"
-                      >
-                        X
-                      </button>
-                    </div>
-
-                    {/* SCORE */}
-                    <div className="mb-4">
-                      <div className="text-xs font-mono mb-1">THREAT SCORE</div>
-
-                      <div className="text-3xl font-mono">
-                        {active.threat_level.toFixed(1)} / 10
-                      </div>
-
-                      <div className="h-2 bg-black/10 mt-2">
-                        <div
-                          className="h-full"
-                          style={{
-                            width: `${active.threat_level * 10}%`,
-                            background: getColor(active.risk_status),
-                          }}
-                        />
-                      </div>
-
-                      <div className="text-xs font-mono mt-2 text-black/60">
-                        Confidence: {active.confidence}%
-                      </div>
-                    </div>
-
-                    {/* ACTION */}
-                    <div className="mb-4">
-                      <div className="text-xs font-mono mb-1">ACTION</div>
-                      <div className="text-sm">
-                        {active.recommended_action}
-                      </div>
-                    </div>
-
-                    {/* META */}
-                    <div className="text-xs font-mono border-t pt-3 text-black/60 space-y-1">
-                      <div className="flex justify-between">
-                        <span>Latency</span>
-                        <span>{active.latency_ms}ms</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Mode</span>
-                        <span>{active.privacy_mode}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Storage</span>
-                        <span>{active.storage}</span>
-                      </div>
-                    </div>
-
-                  </motion.div>
-                </motion.div>,
-                document.body
-              )}
-          </AnimatePresence>
+         <AnimatePresence>
+  {active &&
+    createPortal(
+      <motion.div
+        className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-sm flex items-center justify-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={() => setActive(null)}
+      >
+        <motion.div
+          onClick={(e) => e.stopPropagation()}
+          initial={{ scale: 0.95 }}
+          animate={{ scale: 1 }}
+          exit={{ scale: 0.95 }}
+          className="bg-white border-2 border-black p-6 w-[460px] shadow-[8px_8px_0px_black]"
+        >
+          <h2>{active.reference_id}</h2>
+        </motion.div>
+      </motion.div>,
+      document.getElementById("root") || document.body
+    )}
+</AnimatePresence>
         )}
 
       </div>
