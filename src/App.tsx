@@ -11,7 +11,6 @@ import Agents from "./pages/Agents.tsx";
 import Policies from "./pages/Policies.tsx";
 import SettingsPage from "./pages/Settings.tsx";
 import NotFound from "./pages/NotFound.tsx";
-import LandingPage from "./pages/LandingPage.tsx";
 
 const queryClient = new QueryClient();
 
