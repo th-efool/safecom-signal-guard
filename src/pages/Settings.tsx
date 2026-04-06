@@ -62,7 +62,10 @@ const SettingsPage = () => {
               </p>
             </div>
 
-            <Switch className="data-[state=checked]:bg-black border border-black" defaultChecked />
+            <Switch
+              className="border border-black data-[state=checked]:bg-black"
+              defaultChecked
+            />
           </div>
         </div>
 
@@ -73,7 +76,7 @@ const SettingsPage = () => {
             THRESHOLD ENGINE
           </div>
 
-          {/* ESCALATE */}
+          {/* ESCALATION */}
           <div>
             <div className="flex justify-between mb-1">
               <Label className="text-[10px] uppercase text-black/50">
@@ -84,20 +87,13 @@ const SettingsPage = () => {
               </span>
             </div>
 
-          <Slider
-            value={escalationThreshold}
-            onValueChange={setEscalationThreshold}
-            max={100}
-            step={1}
-            className="
-              [&_[data-orientation=horizontal]]:h-2
-              [&_[data-orientation=horizontal]]:bg-black/20
-              [&_[data-orientation=horizontal]>span]:bg-[#C2185B]
-              [&_[role=slider]]:bg-[#C2185B]
-              [&_[role=slider]]:border-2
-              [&_[role=slider]]:border-black
-            "
-          />
+            <Slider
+              value={escalationThreshold}
+              onValueChange={setEscalationThreshold}
+              max={100}
+              step={1}
+              className="slider-red"
+            />
           </div>
 
           {/* FLAG */}
@@ -111,20 +107,14 @@ const SettingsPage = () => {
               </span>
             </div>
 
-          <Slider
-            value={flagThreshold}
-            onValueChange={setFlagThreshold}
-            max={100}
-            step={1}
-            className="
-              [&_[data-orientation=horizontal]]:h-2
-              [&_[data-orientation=horizontal]]:bg-black/20
-              [&_[data-orientation=horizontal]>span]:bg-[#F59E0B]
-              [&_[role=slider]]:bg-[#F59E0B]
-              [&_[role=slider]]:border-2
-              [&_[role=slider]]:border-black
-            "
-          />
+            <Slider
+              value={flagThreshold}
+              onValueChange={setFlagThreshold}
+              max={100}
+              step={1}
+              className="slider-yellow"
+            />
+          </div>
 
           {/* WARN */}
           <div>
@@ -142,7 +132,7 @@ const SettingsPage = () => {
               onValueChange={setWarnThreshold}
               max={100}
               step={1}
-              className="[&_[role=slider]]:bg-[#10B981]"
+              className="slider-green"
             />
           </div>
 
@@ -185,7 +175,7 @@ const SettingsPage = () => {
 
               <Switch
                 defaultChecked={item.checked}
-                className="data-[state=checked]:bg-black border border-black"
+                className="border border-black data-[state=checked]:bg-black"
               />
             </div>
           ))}
