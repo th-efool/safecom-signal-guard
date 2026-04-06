@@ -1,0 +1,792 @@
+
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SafeCom | Live Intelligence System</title>
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Iconify -->
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+<style>
+/* Base Setup & Variables */
+:root {
+--bg: #FFFFFF;
+--fg: #000000;
+--accent: #C2185B;
+--safe: #10B981;
+--warning: #F59E0B;
+--anim-speed: 1s;
+}
+body {
+background-color: var(--bg);
+color: var(--fg);
+font-family: 'Inter', sans-serif;
+-webkit-font-smoothing: antialiased;
+overflow-x: hidden;
+transition: filter 0.2s;
+}
+.font-mono {
+font-family: 'JetBrains Mono', monospace;
+}
+/* Structural Grid Background */
+.system-grid {
+background-size: 4rem 4rem;
+background-image:
+linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px),
+linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px);
+background-position: center center;
+}
+/* Animations */
+@keyframes blink {
+0%, 100% { opacity: 1; }
+50% { opacity: 0; }
+}
+.animate-blink { animation: blink 1s step-end infinite; }
+@keyframes pulse-node {
+0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(194, 24, 91, 0.4); }
+70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(194, 24, 91, 0); }
+100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(194, 24, 91, 0); }
+}
+.node-active { animation: pulse-node 2s infinite; }
+@keyframes pulse-node-fast {
+0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.2); }
+70% { transform: scale(1.1); box-shadow: 0 0 0 4px rgba(0, 0, 0, 0); }
+100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); }
+}
+.node-sys { animation: pulse-node-fast 1.5s infinite 0.5s; }
+@keyframes flow-horizontal {
+0% { transform: translateX(-100%); }
+100% { transform: translateX(100vw); }
+}
+@keyframes flow-vertical {
+0% { transform: translateY(-100%); }
+100% { transform: translateY(100vh); }
+}
+.signal-line-x {
+position: absolute;
+height: 1px;
+background: linear-gradient(90deg, transparent, var(--accent), transparent);
+animation: flow-horizontal var(--anim-speed) linear infinite;
+z-index: 0;
+}
+.signal-line-y {
+position: absolute;
+width: 1px;
+background: linear-gradient(180deg, transparent, var(--accent), transparent);
+animation: flow-vertical var(--anim-speed) linear infinite;
+z-index: 0;
+}
+@keyframes glitch-anim {
+0% { clip-path: inset(10% 0 80% 0); transform: translate(-2px, 2px); }
+20% { clip-path: inset(80% 0 5% 0); transform: translate(2px, -2px); }
+40% { clip-path: inset(40% 0 40% 0); transform: translate(-2px, -2px); }
+60% { clip-path: inset(20% 0 60% 0); transform: translate(2px, 2px); }
+80% { clip-path: inset(60% 0 20% 0); transform: translate(-2px, -2px); }
+100% { clip-path: inset(30% 0 50% 0); transform: translate(0); }
+}
+.glitch-hover:hover {
+animation: glitch-anim 0.2s cubic-bezier(.25, .46, .45, .94) both infinite;
+color: var(--accent);
+}
+.glitch-active {
+animation: glitch-anim 0.2s cubic-bezier(.25, .46, .45, .94) both infinite;
+color: var(--accent);
+}
+/* Custom UI Elements */
+.brutal-border { border: 1px solid var(--fg); }
+.brutal-border-b { border-bottom: 1px solid var(--fg); }
+.brutal-border-r { border-right: 1px solid var(--fg); }
+.brutal-border-t { border-top: 1px solid var(--fg); }
+.accent-border { border-color: var(--accent); }
+::selection {
+background: var(--accent);
+color: var(--bg);
+}
+/* Dynamic System States */
+.anomaly-flash {
+animation: flash-bg 0.3s infinite alternate;
+}
+@keyframes flash-bg {
+from { background-color: rgba(194, 24, 91, 0.1); }
+to { background-color: rgba(194, 24, 91, 0.3); }
+}
+.decay-item {
+transition: opacity 2s ease-out, transform 2s ease-out, filter 2s ease-out;
+}
+.decay-fade {
+opacity: 0 !important;
+transform: translateY(-10px);
+filter: blur(4px);
+}
+.expandable-trace {
+max-height: 0;
+overflow: hidden;
+transition: max-height 0.4s cubic-bezier(0, 1, 0, 1);
+}
+.trace-expanded .expandable-trace {
+max-height: 200px;
+transition: max-height 0.6s ease-in-out;
+}
+.scramble-text {
+font-family: 'JetBrains Mono', monospace;
+word-break: break-all;
+}
+/* System View Toggle Logic */
+body.system-view .sys-only { display: inline-flex; }
+body.system-view .usr-only { display: none; }
+body:not(.system-view) .sys-only { display: none; }
+body:not(.system-view) .usr-only { display: inline-flex; }
+/* Utilities */
+.delay-100 { animation-delay: 100ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-500 { animation-delay: 500ms; }
+.delay-700 { animation-delay: 700ms; }
+</style></head>
+<body class="relative min-h-screen text-base selection:bg-[#C2185B] selection:text-white flex flex-col">
+
+  <!-- GLOBAL SYSTEM LAYER -->
+  <div class="fixed inset-0 pointer-events-none z-0 system-grid opacity-50"></div>
+  <div id="signal-layer" class="fixed inset-0 pointer-events-none z-0 overflow-hidden mix-blend-multiply">
+    <!-- Dynamic signals injected via JS -->
+  </div>
+
+  <!-- ANOMALY OVERLAY -->
+  <div id="anomaly-overlay" class="fixed inset-0 pointer-events-none z-40 bg-[#C2185B]/10 hidden mix-blend-multiply flex items-center justify-center">
+    <div class="border-4 border-[#C2185B] bg-white px-8 py-4 font-mono font-bold text-[#C2185B] text-4xl uppercase glitch-active flex flex-col items-center">
+      <span>ANOMALY DETECTED</span>
+      <span class="text-xs mt-2 text-black animate-blink">PRIORITY OVERRIDE / ESCALATION FORCED</span>
+    </div>
+  </div>
+
+  <!-- NAVIGATION -->
+  <nav class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-sm brutal-border-b">
+    <div class="flex w-full h-14 pr-6 pl-6 items-center justify-between">
+      <div class="flex items-center gap-4">
+        <div id="sys-status-node" class="w-3 h-3 bg-[#10B981] node-active transition-colors"></div>
+        <span class="font-semibold text-lg tracking-tighter uppercase">SafeCom</span>
+        <span class="font-mono text-xs text-black/50 ml-4 hidden md:inline-flex items-center gap-4">
+          <span id="nav-status">SYS_STATUS: ONLINE</span>
+          <span>|</span>
+          <span id="nav-load">LOAD: LOW</span>
+          <span>|</span>
+          <span id="nav-latency">LAT: 850ms</span>
+        </span>
+      </div>
+      <div class="flex items-center gap-6 font-mono text-xs uppercase font-medium">
+        <!-- System Toggle -->
+        <button id="view-toggle" class="flex items-center gap-0 border border-black overflow-hidden group cursor-pointer transition-colors">
+          <span class="px-3 py-1 bg-black text-white group-data-[sys=true]:bg-white group-data-[sys=true]:text-black transition-colors" id="toggle-usr">USER VIEW</span>
+          <span class="px-3 py-1 bg-white text-black group-data-[sys=true]:bg-black group-data-[sys=true]:text-white transition-colors" id="toggle-sys">SYSTEM VIEW</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN CANVAS -->
+  <main class="relative z-10 flex-grow flex flex-col pt-14">
+
+    <!-- HERO SECTION -->
+    <section class="relative w-full min-h-[90vh] flex flex-col justify-center px-6 lg:px-12 brutal-border-b">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center h-full pt-12 pb-24">
+        
+        <!-- Left text content -->
+        <div class="lg:col-span-7 flex flex-col z-10 items-start">
+          <div class="flex items-center gap-2 font-mono text-xs uppercase border border-black px-2 py-1 mb-8 bg-white shadow-[2px_2px_0_0_#000]">
+            <div id="agent-trace-indicator" class="w-1.5 h-1.5 bg-[#C2185B] animate-blink"></div>
+            <span id="agent-trace-text">Agent Tracing Active</span>
+          </div>
+          
+          <h1 class="font-semibold text-5xl md:text-7xl lg:text-8xl tracking-tighter leading-[0.95] uppercase mb-8">
+            Harm doesn't wait.<br>
+            <span class="text-[#C2185B]">Detection</span> shouldn't either.
+          </h1>
+          
+          <p class="font-mono text-sm max-w-xl text-black/70 mb-12 border-l-2 border-black pl-4 py-1 leading-relaxed relative overflow-hidden group">
+            &gt; MULTI-AGENT ARCHITECTURE INITIALIZED.<br>
+            &gt; TRACE: DETECTOR → VALIDATOR → ANALYZER.<br>
+            <span class="sys-only text-[#C2185B]">&gt; MEM_BUFFER_ADDR: 0x8F9A2<br></span>
+            <span class="sys-only text-[#C2185B]">&gt; PIPELINE_MODE: ASYNC_STAGGERED<br></span>
+          </p>
+          
+          <div class="flex flex-col gap-2 w-full max-w-md">
+            <!-- Memory Buffer (Zero Storage Proof) -->
+            <div class="w-full border border-black bg-black/5 p-3 font-mono text-[10px] uppercase">
+              <div class="flex justify-between items-center mb-2 border-b border-black/20 pb-1">
+                <span class="text-black/50">VOLATILE_MEMORY_BUFFER</span>
+                <span id="mem-status" class="bg-black text-white px-1">IDLE</span>
+              </div>
+              <div id="mem-content" class="h-8 overflow-hidden text-black/70 scramble-text transition-opacity duration-300">
+                [AWAITING_PAYLOAD]
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right floating system visuals -->
+        <div class="lg:col-span-5 relative h-full min-h-[450px] w-full hidden md:block">
+          
+          <!-- System Panel 1: Live Event Stream -->
+          <div class="absolute top-0 right-0 w-80 bg-white brutal-border shadow-[4px_4px_0_0_#000] z-20">
+            <div class="brutal-border-b bg-black text-white font-mono text-[10px] p-2 flex justify-between uppercase">
+              <span>Live_Telemetry_Log</span>
+              <span class="animate-blink">_</span>
+            </div>
+            <div class="p-3 font-mono text-[10px] h-64 overflow-hidden bg-[#fafafa] relative" id="telemetry-log">
+              <!-- JS will inject logs here -->
+            </div>
+          </div>
+
+          <!-- System Panel 2: Action Engine Focus -->
+          <div id="action-engine-panel" class="absolute top-64 left-4 w-64 bg-white brutal-border border-[#C2185B] shadow-[4px_4px_0_0_#C2185B] z-30 transition-colors duration-300">
+            <div id="ae-header" class="border-b border-[#C2185B] bg-[#C2185B] text-white font-mono text-[10px] p-2 flex justify-between uppercase transition-colors duration-300">
+              <span>Action_Engine</span>
+              <span id="ae-req">AWAITING</span>
+            </div>
+            <div class="p-4 flex flex-col w-full relative overflow-hidden">
+              <div id="ae-processing-overlay" class="absolute inset-0 bg-white/90 backdrop-blur-sm z-10 flex items-center justify-center font-mono text-[10px] uppercase font-bold text-[#C2185B] transition-opacity">
+                AWAITING SIGNAL...
+              </div>
+
+              <div class="flex justify-between items-end mb-2">
+                <span class="font-mono text-[10px] uppercase text-black/60">Threat Score</span>
+                <span id="ae-verdict-badge" class="bg-[#C2185B]/10 text-[#C2185B] px-2 py-0.5 font-mono text-[10px] font-semibold uppercase">Dangerous</span>
+              </div>
+              
+              <div class="flex items-baseline gap-1 mb-4">
+                <span id="ae-score" class="font-semibold text-5xl tracking-tighter text-[#C2185B]">--</span>
+                <span class="font-mono text-[10px] text-black/50">/10</span>
+              </div>
+
+              <!-- Action State Bar -->
+              <div class="flex gap-1 h-1.5 w-full bg-black/10 mb-4" id="ae-bar">
+                <div class="h-full bg-black/20 w-1/4 bar-allow"></div>
+                <div class="h-full bg-black/20 w-1/4 bar-warn"></div>
+                <div class="h-full bg-black/20 w-1/4 bar-flag"></div>
+                <div class="h-full bg-black/20 w-1/4 bar-esc"></div>
+              </div>
+
+              <div class="grid grid-cols-4 gap-1 text-[8px] font-mono text-center mb-4 text-black/50" id="ae-labels">
+                <span class="lbl-allow">ALLOW</span>
+                <span class="lbl-warn">WARN</span>
+                <span class="lbl-flag">FLAG</span>
+                <span class="lbl-esc text-[#C2185B] font-semibold">ESCALATE</span>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Connecting Lines in UI -->
+          <svg class="absolute inset-0 w-full h-full pointer-events-none z-10" style="overflow: visible;">
+            <path id="svg-connect" d="M 280 80 L 132 80 L 132 240" fill="none" stroke="#000" stroke-width="1" stroke-dasharray="4 4" class="transition-colors"></path>
+            <circle id="svg-node" cx="132" cy="240" r="3" fill="#C2185B" class="node-active transition-colors"></circle>
+          </svg>
+
+        </div>
+      </div>
+      
+      <!-- Bottom marquee/ticker -->
+      <div class="absolute bottom-0 left-0 w-full brutal-border-t bg-black text-white h-8 flex items-center overflow-hidden whitespace-nowrap font-mono text-xs uppercase z-20">
+        <div class="inline-block animate-[flow-horizontal_20s_linear_infinite_reverse]">
+          <span class="mx-4 text-[#C2185B] tick-sys">///</span> TRACE DETECTOR ACTIVE <span class="mx-4 text-[#C2185B] tick-sys">///</span> CONTEXT VALIDATION <span class="mx-4 text-[#C2185B] tick-sys">///</span> RISK ANALYSIS RUNNING <span class="mx-4 text-[#C2185B] tick-sys">///</span> ESCALATION THRESHOLD MET <span class="mx-4 text-[#C2185B] tick-sys">///</span> IN-MEMORY PROCESSING
+        </div>
+        <div class="inline-block animate-[flow-horizontal_20s_linear_infinite_reverse]" aria-hidden="true">
+          <span class="mx-4 text-[#C2185B] tick-sys">///</span> TRACE DETECTOR ACTIVE <span class="mx-4 text-[#C2185B] tick-sys">///</span> CONTEXT VALIDATION <span class="mx-4 text-[#C2185B] tick-sys">///</span> RISK ANALYSIS RUNNING <span class="mx-4 text-[#C2185B] tick-sys">///</span> ESCALATION THRESHOLD MET <span class="mx-4 text-[#C2185B] tick-sys">///</span> IN-MEMORY PROCESSING
+        </div>
+      </div>
+    </section>
+
+    <!-- SYSTEM FLOW SECTION -->
+    <section id="flow" class="w-full py-24 px-6 lg:px-12 brutal-border-b bg-white relative overflow-hidden">
+      <div class="max-w-7xl mx-auto flex flex-col">
+        
+        <div class="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-8 z-10">
+          <div>
+            <h2 class="font-semibold text-4xl tracking-tighter uppercase mb-2">Signal Processing Pipeline</h2>
+            <p class="font-mono text-sm text-black/60">&gt; TRACING DATA TRAJECTORY FROM INGEST TO ACTION</p>
+          </div>
+          <div class="font-mono text-xs border border-black px-3 py-1 w-fit flex gap-4 bg-black/5">
+            <span>STORAGE: NONE</span>
+            <span class="text-black/20">|</span>
+            <span id="flow-latency">AVG_LATENCY: 1200ms</span>
+          </div>
+        </div>
+
+        <!-- Flow Diagram -->
+        <div class="relative w-full flex flex-col lg:flex-row items-stretch justify-between gap-8 lg:gap-0 mt-8">
+          
+          <!-- Background SVG Connectors (Desktop) -->
+          <div class="hidden lg:block absolute top-1/2 left-0 w-full h-px -translate-y-1/2 z-0">
+             <svg class="w-full h-24 overflow-visible" preserveAspectRatio="none">
+               <path d="M 0 12 L 100% 12" fill="none" stroke="#000" stroke-width="1" stroke-dasharray="2 2"></path>
+               <!-- Flow animation dots injected via JS based on state -->
+               <circle id="flow-dot-1" r="2" fill="#000" opacity="0"></circle>
+               <circle id="flow-dot-2" r="2" fill="#000" opacity="0"></circle>
+             </svg>
+          </div>
+
+          <!-- Step 1: Input -->
+          <div id="pipe-ingest" class="relative z-10 w-full lg:w-1/4 bg-white brutal-border p-6 shadow-[4px_4px_0_0_#000] transition-colors duration-300">
+            <div class="w-8 h-8 bg-black text-white flex items-center justify-center font-mono text-xs mb-4 pipe-num transition-colors">01</div>
+            <h3 class="font-semibold text-xl tracking-tight uppercase mb-4">Raw Ingest</h3>
+            <div id="pipe-ingest-data" class="font-mono text-[10px] bg-black/5 p-2 border border-black/20 text-black/70 mb-4 h-24 overflow-hidden leading-tight scramble-text">
+              [AWAITING]
+            </div>
+            <span class="font-mono text-[10px] text-black/60 uppercase flex items-center gap-2" id="pipe-ingest-status">
+              <iconify-icon icon="solar:import-linear"></iconify-icon> Listening...
+            </span>
+          </div>
+
+          <!-- Step 2: Agent Trace -->
+          <div id="pipe-agents" class="relative z-10 w-full lg:w-1/4 bg-white text-black brutal-border p-6 shadow-[4px_4px_0_0_#000] transform lg:scale-105 transition-all duration-300">
+            <div id="pipe-agents-node" class="absolute -top-3 -right-3 w-6 h-6 bg-black flex items-center justify-center transition-colors">
+              <iconify-icon icon="solar:cpu-linear" class="text-white text-xs"></iconify-icon>
+            </div>
+            <div class="w-8 h-8 bg-black text-white flex items-center justify-center font-mono text-xs mb-4 pipe-num transition-colors">02</div>
+            <h3 class="font-semibold text-xl tracking-tight uppercase mb-4 pipe-title transition-colors">Agent Trace</h3>
+            <div class="space-y-3 font-mono text-[10px]">
+              <div class="flex justify-between items-center border-b border-black/10 pb-1">
+                <span class="text-black/60">ThreatDetector</span> 
+                <span id="agt-td" class="text-black/30 font-bold">---</span>
+              </div>
+              <div class="flex justify-between items-center border-b border-black/10 pb-1">
+                <span class="text-black/60">ContextValidator</span> 
+                <span id="agt-cv" class="text-black/30 font-bold">---</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-black/60">RiskAnalyzer</span> 
+                <span id="agt-ra" class="text-black/30 font-bold">---</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Action Engine -->
+          <div id="pipe-action" class="relative z-10 w-full lg:w-1/4 bg-white brutal-border p-6 shadow-[4px_4px_0_0_#000] transition-colors duration-300">
+            <div class="w-8 h-8 bg-black text-white flex items-center justify-center font-mono text-xs mb-4 pipe-num transition-colors">03</div>
+            <h3 class="font-semibold text-xl tracking-tight uppercase mb-4">Action Engine</h3>
+            <div class="flex gap-2 mb-4 h-5">
+              <span id="pipe-act-badge" class="bg-black/10 text-black px-2 py-0.5 font-mono text-[10px] uppercase hidden">--</span>
+              <span id="pipe-act-conf" class="border border-black px-2 py-0.5 font-mono text-[10px] uppercase hidden">--</span>
+            </div>
+            <div class="font-mono text-[10px] bg-black/5 p-2 border border-black/20 text-black/70 space-y-1">
+              <div class="flex justify-between"><span>Intent:</span> <span id="pipe-act-intent" class="text-black">--</span></div>
+              <div class="flex justify-between"><span>Score:</span> <span id="pipe-act-score" class="text-black font-bold">--</span></div>
+              <div class="flex justify-between"><span>Latency:</span> <span id="pipe-act-lat">--</span></div>
+            </div>
+          </div>
+
+          <!-- Step 4: Platform -->
+          <div class="relative z-10 w-full lg:w-1/4 bg-white brutal-border p-6 border-dashed group hover:border-solid hover:bg-black hover:text-white transition-all duration-300">
+            <div class="w-8 h-8 border border-black flex items-center justify-center font-mono text-xs mb-4 group-hover:border-white transition-colors">04</div>
+            <h3 class="font-semibold text-xl tracking-tight uppercase mb-4">Platform Route</h3>
+            <div class="font-mono text-xs space-y-3 opacity-60 group-hover:opacity-100 transition-opacity">
+              <div class="flex items-center justify-between"><span class="flex items-center gap-2"><iconify-icon icon="solar:shield-check-linear"></iconify-icon> ALLOW</span> <span class="text-[10px]">Pass</span></div>
+              <div class="flex items-center justify-between"><span class="flex items-center gap-2"><iconify-icon icon="solar:flag-linear"></iconify-icon> FLAG</span> <span class="text-[10px]">Review</span></div>
+              <div class="flex items-center justify-between"><span class="flex items-center gap-2"><iconify-icon icon="solar:user-block-linear"></iconify-icon> ESCALATE</span> <span class="text-[10px]">Block</span></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+<script>
+// --- CORE SIMULATION STATE ---
+const state = {
+  systemLoad: 'LOW',
+  signalDensity: 1, // 1 to 5
+  latency: 850, // ms
+  anomaly: false,
+  systemViewActive: false
+};
+
+// Vocabulary for mock payloads
+const mockIntents = [
+  { text: "I know where you live.", intent: "Intimidation", type: "ESCALATE", score: 9.4, conf: 0.94, t: "DANGEROUS", c: "SUSPICIOUS", r: "DANGEROUS", col: "#C2185B" },
+  { text: "Click here to claim your prize immediately.", intent: "Scam Attempt", type: "FLAG", score: 6.8, conf: 0.81, t: "SAFE", c: "SUSPICIOUS", r: "SUSPICIOUS", col: "#000000" },
+  { text: "You are an absolute idiot.", intent: "Harassment", type: "WARN", score: 5.2, conf: 0.79, t: "SUSPICIOUS", c: "SUSPICIOUS", r: "SAFE", col: "#F59E0B" },
+  { text: "Let's meet up tomorrow at 5.", intent: "Coordination", type: "ALLOW", score: 1.2, conf: 0.99, t: "SAFE", c: "SAFE", r: "SAFE", col: "#10B981" },
+  { text: "I will literally destroy your life.", intent: "Severe Threat", type: "ESCALATE", score: 9.8, conf: 0.98, t: "DANGEROUS", c: "DANGEROUS", r: "DANGEROUS", col: "#C2185B" },
+  { text: "Send me the funds or else.", intent: "Extortion", type: "ESCALATE", score: 8.9, conf: 0.91, t: "DANGEROUS", c: "DANGEROUS", r: "SUSPICIOUS", col: "#C2185B" }
+];
+
+// Failure / Uncertainty intents injected randomly
+const failureIntents = [
+  { text: "I'll see you soon.", intent: "Ambiguous Context", type: "WARN", score: 4.5, conf: 0.42, t: "UNKNOWN", c: "SUSPICIOUS", r: "UNKNOWN", col: "#F59E0B", note: "LOW CONFIDENCE" },
+  { text: "Watch your back.", intent: "Possible Threat", type: "FLAG", score: 7.1, conf: 0.55, t: "SUSPICIOUS", c: "DANGEROUS", r: "CONFLICT", col: "#F59E0B", note: "CONFLICTING SIGNALS" }
+];
+
+// --- DOM ELEMENTS ---
+const elTelemetryLog = document.getElementById('telemetry-log');
+const elNavLoad = document.getElementById('nav-load');
+const elNavLat = document.getElementById('nav-latency');
+const elFlowLat = document.getElementById('flow-latency');
+const elSysStatusNode = document.getElementById('sys-status-node');
+const elSignalLayer = document.getElementById('signal-layer');
+const elAnomalyOverlay = document.getElementById('anomaly-overlay');
+
+const elToggleUsr = document.getElementById('toggle-usr');
+const elToggleSys = document.getElementById('toggle-sys');
+const elViewToggle = document.getElementById('view-toggle');
+
+// Pipeline elements
+const pIngestData = document.getElementById('pipe-ingest-data');
+const pIngestStatus = document.getElementById('pipe-ingest-status');
+const pMemContent = document.getElementById('mem-content');
+const pMemStatus = document.getElementById('mem-status');
+
+const aTD = document.getElementById('agt-td');
+const aCV = document.getElementById('agt-cv');
+const aRA = document.getElementById('agt-ra');
+
+const aeBadge = document.getElementById('pipe-act-badge');
+const aeConf = document.getElementById('pipe-act-conf');
+const aeIntent = document.getElementById('pipe-act-intent');
+const aeScore = document.getElementById('pipe-act-score');
+const aeLat = document.getElementById('pipe-act-lat');
+
+const mAEPanel = document.getElementById('action-engine-panel');
+const mAEHeader = document.getElementById('ae-header');
+const mAEReq = document.getElementById('ae-req');
+const mAEOverlay = document.getElementById('ae-processing-overlay');
+const mAEScore = document.getElementById('ae-score');
+const mAEVerdict = document.getElementById('ae-verdict-badge');
+const mAEBar = document.getElementById('ae-bar');
+const mAELabels = document.getElementById('ae-labels');
+
+// SVG Connectors
+const svgConnect = document.getElementById('svg-connect');
+const svgNode = document.getElementById('svg-node');
+
+
+// --- HELPERS ---
+const delay = ms => new Promise(res => setTimeout(res, ms));
+const randomRange = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+const generateId = () => 'REQ-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+const scrambleStr = (str) => str.split('').map(c => Math.random() > 0.5 ? '*' : '#').join('');
+
+// --- SYSTEM LOOP (Global State) ---
+setInterval(() => {
+  // Randomly adjust latency and density
+  state.latency = randomRange(600, 2500);
+  
+  if (state.latency < 1000) { state.systemLoad = 'LOW'; state.signalDensity = 1; }
+  else if (state.latency < 1800) { state.systemLoad = 'MEDIUM'; state.signalDensity = 3; }
+  else { state.systemLoad = 'HIGH'; state.signalDensity = 5; }
+
+  // 5% chance of anomaly
+  if (Math.random() < 0.05 && !state.anomaly) {
+    triggerAnomaly();
+  }
+
+  // Update UI Stats
+  elNavLat.innerText = `LAT: ${state.latency}ms`;
+  elNavLoad.innerText = `LOAD: ${state.systemLoad}`;
+  elFlowLat.innerText = `AVG_LATENCY: ${state.latency}ms`;
+  
+  // Adjust background animation speed
+  document.documentElement.style.setProperty('--anim-speed', `${3 / state.signalDensity}s`);
+
+  // Spawn background signals based on density
+  spawnBackgroundSignals();
+
+}, 3000);
+
+// --- ANOMALY FUNCTION ---
+async function triggerAnomaly() {
+  state.anomaly = true;
+  elSysStatusNode.classList.replace('bg-[#10B981]', 'bg-[#C2185B]');
+  document.body.classList.add('anomaly-flash');
+  elAnomalyOverlay.classList.remove('hidden');
+  
+  // Force high metrics
+  elNavLoad.innerText = `LOAD: CRITICAL`;
+  elNavLat.innerText = `LAT: 3450ms`;
+  
+  await delay(2500);
+  
+  state.anomaly = false;
+  elSysStatusNode.classList.replace('bg-[#C2185B]', 'bg-[#10B981]');
+  document.body.classList.remove('anomaly-flash');
+  elAnomalyOverlay.classList.add('hidden');
+}
+
+// --- BACKGROUND SIGNALS ---
+function spawnBackgroundSignals() {
+  elSignalLayer.innerHTML = '';
+  const count = state.signalDensity * 2;
+  for (let i=0; i<count; i++) {
+    const isX = Math.random() > 0.5;
+    const line = document.createElement('div');
+    line.className = `opacity-${randomRange(30, 70)} ` + (isX ? 'signal-line-x' : 'signal-line-y');
+    
+    if (isX) {
+      line.style.top = `${randomRange(10, 90)}vh`;
+      line.style.width = `${randomRange(100, 400)}px`;
+    } else {
+      line.style.left = `${randomRange(10, 90)}vw`;
+      line.style.height = `${randomRange(100, 400)}px`;
+    }
+    line.style.animationDelay = `${randomRange(0, 1000)}ms`;
+    if (state.anomaly) line.style.background = 'linear-gradient(90deg, transparent, #F59E0B, transparent)';
+    
+    elSignalLayer.appendChild(line);
+  }
+}
+
+// --- TOGGLE SYSTEM VIEW ---
+elViewToggle.addEventListener('click', () => {
+  state.systemViewActive = !state.systemViewActive;
+  document.body.classList.toggle('system-view', state.systemViewActive);
+  
+  elViewToggle.setAttribute('data-sys', state.systemViewActive);
+});
+
+
+// --- PIPELINE SIMULATION (The Core Engine) ---
+async function runPipeline() {
+  while (true) {
+    // 1. Generate Payload
+    const reqId = generateId();
+    // 10% chance of failure/uncertainty payload
+    const isFailure = Math.random() < 0.1;
+    const payload = isFailure ? failureIntents[randomRange(0, failureIntents.length-1)] : mockIntents[randomRange(0, mockIntents.length-1)];
+    const actLatency = state.latency + randomRange(-200, 200);
+
+    // --- PHASE 1: INGEST ---
+    pMemStatus.innerText = "WRITING";
+    pMemStatus.className = "bg-[#C2185B] text-white px-1 font-bold animate-pulse";
+    
+    // Construct display text based on mode
+    const contentText = payload.text;
+    const tokenizedText = `[0x9A, 0x1B, 0xFF...]`;
+    
+    pMemContent.innerHTML = `{<br>&nbsp;&nbsp;"id": "${reqId}",<br>&nbsp;&nbsp;"content": "<span class="usr-only">${contentText}</span><span class="sys-only text-[#C2185B]">${tokenizedText}</span>"<br>}`;
+    pMemContent.classList.remove('decay-fade');
+    
+    pIngestStatus.innerHTML = `<iconify-icon icon="solar:import-linear"></iconify-icon> Payload Received`;
+    pIngestData.innerHTML = pMemContent.innerHTML;
+
+    // Reset UI
+    resetActionEngineUI();
+    document.getElementById('pipe-ingest').classList.add('border-black', 'shadow-[4px_4px_0_0_#C2185B]');
+    
+    await delay(actLatency * 0.3);
+
+    // --- ZERO STORAGE PROOF (Scramble & Clear) ---
+    pMemStatus.innerText = "FLUSHED";
+    pMemStatus.className = "bg-black text-white px-1";
+    pMemContent.innerHTML = `{<br>&nbsp;&nbsp;"id": "${reqId}",<br>&nbsp;&nbsp;"content": "${scrambleStr(contentText)}"<br>}`;
+    pMemContent.classList.add('decay-fade');
+    document.getElementById('pipe-ingest').classList.remove('border-black', 'shadow-[4px_4px_0_0_#C2185B]');
+
+    // --- PHASE 2: AGENT TRACE ---
+    document.getElementById('pipe-agents').classList.add('bg-black', 'text-white', 'shadow-[4px_4px_0_0_#C2185B]', 'scale-110');
+    document.getElementById('pipe-agents-node').classList.replace('bg-black', 'bg-[#C2185B]');
+    document.getElementById('pipe-agents-node').classList.add('node-active');
+    document.querySelector('#pipe-agents .pipe-title').classList.add('text-[#C2185B]');
+    document.querySelector('#pipe-agents .pipe-num').classList.replace('bg-black', 'bg-white');
+    document.querySelector('#pipe-agents .pipe-num').classList.replace('text-white', 'text-black');
+
+    // Staggered reveal of agents
+    aTD.innerHTML = "ANALYZING..."; aTD.className = "text-[#C2185B] animate-pulse font-bold";
+    await delay(actLatency * 0.2);
+    aTD.innerHTML = payload.t; aTD.className = getAgentColorClass(payload.t);
+
+    aCV.innerHTML = "ANALYZING..."; aCV.className = "text-[#C2185B] animate-pulse font-bold";
+    await delay(actLatency * 0.2);
+    aCV.innerHTML = payload.c; aCV.className = getAgentColorClass(payload.c);
+
+    aRA.innerHTML = "ANALYZING..."; aRA.className = "text-[#C2185B] animate-pulse font-bold";
+    await delay(actLatency * 0.2);
+    aRA.innerHTML = payload.r; aRA.className = getAgentColorClass(payload.r);
+
+    await delay(200);
+    // Cleanup Phase 2 UI
+    document.getElementById('pipe-agents').classList.remove('bg-black', 'text-white', 'shadow-[4px_4px_0_0_#C2185B]', 'scale-110');
+    document.getElementById('pipe-agents-node').classList.replace('bg-[#C2185B]', 'bg-black');
+    document.getElementById('pipe-agents-node').classList.remove('node-active');
+    document.querySelector('#pipe-agents .pipe-title').classList.remove('text-[#C2185B]');
+    document.querySelector('#pipe-agents .pipe-num').classList.replace('bg-white', 'bg-black');
+    document.querySelector('#pipe-agents .pipe-num').classList.replace('text-black', 'text-white');
+
+    // --- PHASE 3: ACTION ENGINE & TELEMETRY ---
+    document.getElementById('pipe-action').classList.add('border-[#C2185B]', 'shadow-[4px_4px_0_0_#C2185B]');
+    
+    // Update main panel
+    mAEReq.innerText = `Req: ${reqId}`;
+    mAEOverlay.classList.add('opacity-0');
+    setTimeout(() => mAEOverlay.classList.add('hidden'), 300);
+    
+    mAEScore.innerText = payload.score.toFixed(1);
+    mAEVerdict.innerText = payload.type;
+    
+    // Style Main Panel based on type
+    mAEPanel.style.borderColor = payload.col;
+    mAEPanel.style.boxShadow = `4px 4px 0 0 ${payload.col}`;
+    mAEHeader.style.backgroundColor = payload.col;
+    mAEHeader.style.borderColor = payload.col;
+    mAEVerdict.style.color = payload.col;
+    mAEVerdict.style.backgroundColor = `${payload.col}20`;
+    mAEScore.style.color = payload.col;
+
+    // Action Bar logic
+    updateActionBar(payload.type, payload.col);
+
+    // Update Bottom Pipeline
+    aeBadge.classList.remove('hidden');
+    aeConf.classList.remove('hidden');
+    aeBadge.innerText = payload.type;
+    aeBadge.style.backgroundColor = payload.col;
+    aeBadge.style.color = '#fff';
+    aeConf.innerText = `${Math.round(payload.conf*100)}% CONF`;
+    
+    aeIntent.innerText = payload.intent;
+    aeScore.innerText = `${payload.score}/10`;
+    aeScore.style.color = payload.col;
+    aeLat.innerText = `${actLatency}ms`;
+
+    // SVG Connection Pulse
+    svgConnect.setAttribute('stroke', payload.col);
+    svgConnect.classList.add('node-active');
+    svgNode.setAttribute('fill', payload.col);
+
+    // Prepend to Live Telemetry Log
+    addTelemetryLog(reqId, payload, actLatency);
+
+    // Wait before next cycle
+    await delay(2000);
+
+    // --- PHASE 4: CLEANUP & NEXT ---
+    document.getElementById('pipe-action').classList.remove('border-[#C2185B]', 'shadow-[4px_4px_0_0_#C2185B]');
+    svgConnect.setAttribute('stroke', '#000');
+    svgConnect.classList.remove('node-active');
+    svgNode.setAttribute('fill', '#000');
+    
+    // Small gap before next message
+    await delay(randomRange(500, 1500));
+  }
+}
+
+// --- HELPER LOGIC FOR PIPELINE ---
+function getAgentColorClass(val) {
+  if (val === 'DANGEROUS') return 'text-white bg-[#C2185B] px-1 font-bold';
+  if (val === 'SUSPICIOUS') return 'text-black bg-[#F59E0B] px-1 font-bold';
+  if (val === 'SAFE') return 'text-white bg-[#10B981] px-1 font-bold';
+  return 'text-white bg-black px-1 font-bold'; // Conflict/Unknown
+}
+
+function resetActionEngineUI() {
+  mAEReq.innerText = "AWAITING";
+  mAEOverlay.classList.remove('hidden');
+  setTimeout(() => mAEOverlay.classList.remove('opacity-0'), 10);
+  mAEPanel.style.borderColor = '#C2185B';
+  mAEPanel.style.boxShadow = `4px 4px 0 0 #C2185B`;
+  mAEHeader.style.backgroundColor = '#C2185B';
+  mAEScore.innerText = '--';
+  
+  aTD.innerHTML = "---"; aTD.className = "text-black/30 font-bold";
+  aCV.innerHTML = "---"; aCV.className = "text-black/30 font-bold";
+  aRA.innerHTML = "---"; aRA.className = "text-black/30 font-bold";
+
+  aeBadge.classList.add('hidden');
+  aeConf.classList.add('hidden');
+  aeIntent.innerText = '--';
+  aeScore.innerText = '--';
+  aeLat.innerText = '--';
+}
+
+function updateActionBar(type, col) {
+  const bars = Array.from(mAEBar.children);
+  const lbls = Array.from(mAELabels.children);
+  
+  bars.forEach(b => { b.style.backgroundColor = 'rgba(0,0,0,0.2)'; b.classList.remove('node-active'); });
+  lbls.forEach(l => { l.style.color = 'rgba(0,0,0,0.5)'; l.classList.remove('font-semibold'); });
+
+  let idx = 0;
+  if (type === 'WARN') idx = 1;
+  if (type === 'FLAG') idx = 2;
+  if (type === 'ESCALATE') idx = 3;
+
+  bars[idx].style.backgroundColor = col;
+  bars[idx].classList.add('node-active');
+  lbls[idx].style.color = col;
+  lbls[idx].classList.add('font-semibold');
+}
+
+function addTelemetryLog(reqId, payload, latency) {
+  const logEntry = document.createElement('div');
+  logEntry.className = 'flex flex-col border-b border-black/10 pb-2 mb-3 cursor-pointer group hover:bg-black/5 p-2 transition-colors decay-item trace-expanded';
+  
+  const badgeStyle = payload.type === 'ESCALATE' 
+    ? 'bg-[#C2185B] text-white' 
+    : (payload.type === 'WARN' || payload.type === 'FLAG') 
+      ? `bg-[${payload.col}]/10 border border-[${payload.col}]/20 text-[${payload.col}]`
+      : 'bg-black text-white';
+
+  const noteHtml = payload.note ? `<span class="bg-[#F59E0B] text-black px-1 font-bold text-[8px] ml-2 animate-pulse">${payload.note}</span>` : '';
+
+  logEntry.innerHTML = `
+    <div class="flex justify-between items-center mb-1">
+      <span style="color: ${payload.col}" class="font-semibold">[${new Date().toLocaleTimeString('en-US',{hour12:false})}] ${reqId}</span>
+      <div class="flex items-center">
+        ${noteHtml}
+        <span class="${badgeStyle} px-1 py-0.5 ml-2 sys-only font-bold">ACT:${payload.type}</span>
+        <span class="${badgeStyle} px-1 py-0.5 ml-2 usr-only">${payload.type}</span>
+      </div>
+    </div>
+    <span class="text-black/80">Intent: ${payload.intent}</span>
+    
+    <!-- Expanded Trace Details -->
+    <div class="expandable-trace w-full">
+      <div class="mt-2 pt-2 border-t border-black/10 text-[9px] text-black/60 space-y-1">
+        <div class="flex justify-between"><span>→ ThreatDetector:</span> <span class="sys-only font-bold text-black">${payload.conf.toFixed(2)}</span><span class="usr-only">${payload.t}</span></div>
+        <div class="flex justify-between"><span>→ ContextValidator:</span> <span class="sys-only font-bold text-black">${(payload.conf*0.8).toFixed(2)}</span><span class="usr-only">${payload.c}</span></div>
+        <div class="flex justify-between"><span>→ RiskAnalyzer:</span> <span class="sys-only font-bold text-black">${(payload.conf*1.1).toFixed(2)}</span><span class="usr-only">${payload.r}</span></div>
+      </div>
+    </div>
+
+    <div class="flex gap-4 text-black/50 mt-1">
+      <span>Conf: ${Math.round(payload.conf*100)}%</span>
+      <span>Lat: ${latency}ms</span>
+    </div>
+  `;
+
+  // Toggle expand on click
+  logEntry.addEventListener('click', () => {
+    logEntry.classList.toggle('trace-expanded');
+  });
+
+  // Prepend
+  elTelemetryLog.prepend(logEntry);
+
+  // Auto close expand after a bit to keep it clean
+  setTimeout(() => logEntry.classList.remove('trace-expanded'), 3000);
+
+  // Temporal Decay (Zero Storage) - Fade out and remove
+  setTimeout(() => {
+    logEntry.classList.add('decay-fade');
+    setTimeout(() => {
+      if(logEntry.parentNode) logEntry.remove();
+    }, 2000);
+  }, 12000); // Exists for 12 seconds before fading
+  
+  // Keep DOM light
+  if (elTelemetryLog.children.length > 5) {
+    const last = elTelemetryLog.lastElementChild;
+    last.classList.add('decay-fade');
+    setTimeout(() => { if(last.parentNode) last.remove(); }, 2000);
+  }
+}
+
+// Start Simulations
+spawnBackgroundSignals();
+runPipeline();
+
+</script>
+
+</body></html>
