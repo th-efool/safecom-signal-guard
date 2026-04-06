@@ -1,7 +1,7 @@
-import { useState } from "react";
 import { AppLayout } from "@/components/AppLayout";
 import { ActionBadge } from "@/components/StatusBadge";
 import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
 
 type Violation = {
   reference_id: string;
@@ -10,11 +10,50 @@ type Violation = {
   risk_status: "Safe" | "Suspicious" | "Dangerous";
   confidence: number;
   recommended_action: string;
+  privacy_mode: string;
+  storage: string;
   latency_ms: number;
   timestamp: string;
 };
 
-const violations: Violation[] = [/* SAME DATA */];
+const violations: Violation[] = [
+  {
+    reference_id: "VC-1001",
+    threat_level: 8,
+    intent_classification: "Direct Intimidation",
+    risk_status: "Dangerous",
+    confidence: 94,
+    recommended_action: "Escalate and notify platform",
+    privacy_mode: "in-memory",
+    storage: "none",
+    latency_ms: 1842,
+    timestamp: "2024-12-15 12:04:32",
+  },
+  {
+    reference_id: "VC-1002",
+    threat_level: 7,
+    intent_classification: "Stalking Behavior",
+    risk_status: "Dangerous",
+    confidence: 91,
+    recommended_action: "Escalate and alert safety team",
+    privacy_mode: "in-memory",
+    storage: "none",
+    latency_ms: 1720,
+    timestamp: "2024-12-15 11:55:10",
+  },
+  {
+    reference_id: "VC-1003",
+    threat_level: 5,
+    intent_classification: "Coercion",
+    risk_status: "Suspicious",
+    confidence: 74,
+    recommended_action: "Flag for moderation review",
+    privacy_mode: "in-memory",
+    storage: "none",
+    latency_ms: 1390,
+    timestamp: "2024-12-15 12:01:44",
+  },
+];
 
 const getColor = (status: Violation["risk_status"]) => {
   if (status === "Dangerous") return "#C2185B";
@@ -30,11 +69,11 @@ const Violations = () => {
       <div className="space-y-6">
 
         {/* HEADER */}
-        <div>
-          <h1 className="text-xl font-semibold uppercase">
+        <div className="border-b border-black pb-4">
+          <h1 className="text-2xl font-semibold uppercase">
             Violations
           </h1>
-          <p className="text-sm text-black/60 font-mono">
+          <p className="font-mono text-xs text-black/60 mt-1">
             &gt; REFERENCE EVENTS · ZERO STORAGE
           </p>
         </div>
@@ -48,7 +87,7 @@ const Violations = () => {
               <div
                 key={v.reference_id}
                 onClick={() => setActive(v)}
-                className="cursor-pointer border border-black p-4 hover:shadow-[4px_4px_0px_black] transition-all bg-white"
+                className="cursor-pointer border-2 border-black bg-white p-4 hover:shadow-[4px_4px_0px_black] transition"
               >
                 <div className="flex justify-between items-center">
 
@@ -112,16 +151,21 @@ const Violations = () => {
         <AnimatePresence>
           {active && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
               className="fixed inset-0 z-[999] bg-black/70 backdrop-blur-[2px] flex items-center justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               onClick={() => setActive(null)}
             >
               <motion.div
                 onClick={(e) => e.stopPropagation()}
-                className="bg-white border border-black p-6 w-[420px] shadow-[6px_6px_0px_black]"
+                initial={{ scale: 0.95 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0.95 }}
+                className="bg-white border-2 border-black p-6 w-[460px] shadow-[8px_8px_0px_black] relative"
               >
+                <div className="absolute top-0 left-0 w-full h-[3px] bg-[#C2185B]" />
+
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="font-semibold">
                     {active.reference_id} — Analysis
@@ -178,11 +222,11 @@ const Violations = () => {
                   </div>
                   <div className="flex justify-between">
                     <span>Mode</span>
-                    <span>in-memory</span>
+                    <span>{active.privacy_mode}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Storage</span>
-                    <span>none</span>
+                    <span>{active.storage}</span>
                   </div>
                 </div>
 
