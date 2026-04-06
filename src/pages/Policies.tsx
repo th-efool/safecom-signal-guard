@@ -1,7 +1,5 @@
 import { AppLayout } from "@/components/AppLayout";
-import { Card, CardContent } from "@/components/ui/card";
 import { ActionBadge } from "@/components/StatusBadge";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
 import { Plus, ArrowRight } from "lucide-react";
@@ -19,37 +17,77 @@ const Policies = () => {
   const [policies, setPolicies] = useState(initialPolicies);
 
   const togglePolicy = (id: number) => {
-    setPolicies((prev) => prev.map((p) => p.id === id ? { ...p, enabled: !p.enabled } : p));
+    setPolicies((prev) =>
+      prev.map((p) =>
+        p.id === id ? { ...p, enabled: !p.enabled } : p
+      )
+    );
   };
 
   return (
     <AppLayout>
-      <div className="space-y-5">
-        <div className="flex items-end justify-between">
+      <div className="space-y-6">
+
+        {/* HEADER */}
+        <div className="flex items-end justify-between border-b border-black pb-4">
           <div>
-            <h1 className="text-xl font-semibold tracking-tight">Policies</h1>
-            <p className="text-sm text-muted-foreground">Safety rules that influence thresholds and escalation</p>
+            <h1 className="text-xl font-semibold uppercase">
+              Policy Engine
+            </h1>
+            <p className="font-mono text-xs text-black/60 mt-1">
+              &gt; RULE-BASED EXECUTION LAYER
+            </p>
           </div>
-          <Button size="sm" variant="outline" className="h-8 text-xs">
-            <Plus className="h-3.5 w-3.5 mr-1" /> Add Policy
-          </Button>
+
+          <button className="border border-black px-3 py-1 text-xs font-mono flex items-center gap-1 hover:bg-black hover:text-white transition">
+            <Plus className="h-3.5 w-3.5" />
+            ADD POLICY
+          </button>
         </div>
 
+        {/* RULES */}
         <div className="space-y-3">
+
           {policies.map((policy) => (
-            <Card key={policy.id} className={`${!policy.enabled ? "opacity-40" : ""} transition-all hover:shadow-md`}>
-              <CardContent className="py-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="text-[10px] font-mono font-semibold px-2 py-1 bg-secondary rounded-md text-muted-foreground uppercase tracking-wide">IF</span>
-                  <span className="text-sm font-mono">{policy.condition}</span>
-                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span className="text-[10px] font-mono font-semibold px-2 py-1 bg-secondary rounded-md text-muted-foreground uppercase tracking-wide">THEN</span>
-                  <ActionBadge action={policy.action} />
-                </div>
-                <Switch checked={policy.enabled} onCheckedChange={() => togglePolicy(policy.id)} />
-              </CardContent>
-            </Card>
+            <div
+              key={policy.id}
+              className={`
+                border-2 border-black bg-white p-4 flex justify-between items-center
+                transition
+                ${policy.enabled ? "" : "opacity-40 grayscale"}
+                hover:shadow-[4px_4px_0px_black]
+              `}
+            >
+
+              {/* LEFT FLOW */}
+              <div className="flex items-center gap-3 font-mono text-sm">
+
+                <span className="border border-black px-2 py-1 text-[10px]">
+                  IF
+                </span>
+
+                <span>{policy.condition}</span>
+
+                <ArrowRight className="h-4 w-4 text-black/60" />
+
+                <span className="border border-black px-2 py-1 text-[10px]">
+                  THEN
+                </span>
+
+                <ActionBadge action={policy.action} />
+
+              </div>
+
+              {/* RIGHT CONTROL */}
+              <Switch
+                checked={policy.enabled}
+                onCheckedChange={() => togglePolicy(policy.id)}
+                className="border border-black data-[state=checked]:bg-black"
+              />
+
+            </div>
           ))}
+
         </div>
       </div>
     </AppLayout>
