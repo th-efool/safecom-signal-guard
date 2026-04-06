@@ -127,7 +127,7 @@ const LiveMonitor = () => {
             </p>
           </div>
 
-          <span className="font-mono text-xs border border-black px-2 py-1">
+          <span className="font-mono text-xs border border-[#C2185B] text-[#C2185B] px-2 py-1">
             {processing ? "PROCESSING" : "IDLE"}
           </span>
         </div>
@@ -135,7 +135,7 @@ const LiveMonitor = () => {
         {/* MAIN GRID */}
         <div className="grid grid-cols-12 gap-6">
 
-          {/* LEFT */}
+          {/* INPUT */}
           <div className="col-span-3 brutal-border brutal-shadow p-4 flex flex-col">
 
             <div className="font-mono text-[10px] mb-3 text-black/50">
@@ -170,7 +170,7 @@ const LiveMonitor = () => {
             </button>
           </div>
 
-          {/* CENTER */}
+          {/* PIPELINE + AGENTS */}
           <div className="col-span-4 space-y-4">
 
             {/* PIPELINE */}
@@ -182,7 +182,9 @@ const LiveMonitor = () => {
               <div className="flex justify-between">
                 {["INGEST", "INTENT", "AGENTS", "CLASSIFY", "ACTION"].map((s, i) => (
                   <div key={s} className="flex items-center gap-2">
-                    <div className={`px-2 py-1 text-[10px] border border-black font-mono ${i <= step ? "bg-black text-white" : ""}`}>
+                    <div className={`px-2 py-1 text-[10px] border border-black font-mono ${
+                      i <= step ? "bg-[#C2185B] text-white border-[#C2185B]" : ""
+                    }`}>
                       {s}
                     </div>
                     {i < 4 && <div className="w-6 h-[1px] bg-black/40" />}
@@ -204,13 +206,20 @@ const LiveMonitor = () => {
                     <div key={agent.name} className="border border-black p-3">
                       <div className="flex justify-between mb-1">
                         <span className="text-sm font-semibold">{agent.name}</span>
-                        <span className={`text-[10px] px-2 border ${
-                          agent.verdict === "DANGEROUS" ? "bg-black text-white" :
-                          agent.verdict === "SUSPICIOUS" ? "bg-black/20" : ""
-                        }`}>
+
+                        <span className={`
+                          text-[10px] px-2 py-0.5 font-mono border
+                          ${agent.verdict === "DANGEROUS"
+                            ? "bg-[#C2185B] text-white border-[#C2185B]"
+                            : agent.verdict === "SUSPICIOUS"
+                            ? "bg-[#F59E0B] text-black border-[#F59E0B]"
+                            : "bg-[#10B981] text-white border-[#10B981]"
+                          }
+                        `}>
                           {agent.verdict}
                         </span>
                       </div>
+
                       <p className="text-[11px] font-mono text-black/60">
                         {agent.reasoning}
                       </p>
@@ -225,7 +234,7 @@ const LiveMonitor = () => {
             </div>
           </div>
 
-          {/* RIGHT */}
+          {/* ACTION ENGINE */}
           <div className="col-span-5 brutal-border brutal-shadow p-5">
 
             <div className="font-mono text-[10px] mb-4 text-black/50">
@@ -247,20 +256,37 @@ const LiveMonitor = () => {
 
                   <div className="h-[3px] bg-black/10 mt-2">
                     <div
-                      className="bg-black h-full"
+                      className={`h-full ${
+                        result.riskScore > 70
+                          ? "bg-[#C2185B]"
+                          : result.riskScore > 40
+                          ? "bg-[#F59E0B]"
+                          : "bg-[#10B981]"
+                      }`}
                       style={{ width: `${result.riskScore}%` }}
                     />
                   </div>
                 </div>
 
-                {/* ACTION */}
+                {/* ACTION STATES */}
                 <div className="grid grid-cols-4 gap-2 font-mono text-[10px]">
                   {["ALLOW", "WARN", "FLAG", "ESCALATE"].map((a) => (
                     <div
                       key={a}
-                      className={`text-center py-2 border ${
-                        result.action === a ? "bg-black text-white border-black" : "border-black/40"
-                      }`}
+                      className={`
+                        text-center py-2 border
+                        ${
+                          result.action === a
+                            ? a === "ESCALATE"
+                              ? "bg-[#C2185B] text-white border-[#C2185B]"
+                              : a === "FLAG"
+                              ? "bg-[#F59E0B] text-black border-[#F59E0B]"
+                              : a === "WARN"
+                              ? "bg-[#F59E0B]/80 text-black border-[#F59E0B]"
+                              : "bg-[#10B981] text-white border-[#10B981]"
+                            : "border-black/40"
+                        }
+                      `}
                     >
                       {a}
                     </div>
