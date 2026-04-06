@@ -1,10 +1,8 @@
 import { AppLayout } from "@/components/AppLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 const SettingsPage = () => {
@@ -14,86 +12,177 @@ const SettingsPage = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-6 max-w-2xl">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">Settings</h1>
-          <p className="text-sm text-muted-foreground">System configuration and thresholds</p>
+      <div className="space-y-8 max-w-3xl">
+
+        {/* HEADER */}
+        <div className="border-b border-black pb-4">
+          <h1 className="text-2xl font-semibold uppercase">
+            System Configuration
+          </h1>
+          <p className="font-mono text-xs text-black/60 mt-1">
+            &gt; CONTROL SURFACE · THRESHOLDS · EXECUTION RULES
+          </p>
         </div>
 
-        <Card>
-          <CardHeader className="pb-4">
-            <CardTitle className="text-sm font-semibold tracking-tight">API Connections</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-1.5">
-              <Label className="text-[11px] text-muted-foreground uppercase tracking-wide">Model Endpoint</Label>
-              <Input value="https://api.groq.com/v1/chat/completions" readOnly className="font-mono text-xs h-9 bg-secondary/50" />
+        {/* API */}
+        <div className="border-2 border-black bg-white p-5 space-y-4">
+
+          <div className="font-mono text-[10px] text-black/50">
+            API CONNECTION
+          </div>
+
+          <div>
+            <Label className="text-[10px] uppercase text-black/50">
+              Model Endpoint
+            </Label>
+            <Input
+              value="https://api.groq.com/v1/chat/completions"
+              readOnly
+              className="font-mono text-xs h-9 border border-black bg-white"
+            />
+          </div>
+
+          <div>
+            <Label className="text-[10px] uppercase text-black/50">
+              API Key
+            </Label>
+            <Input
+              type="password"
+              value="gsk_••••••••••••••••"
+              readOnly
+              className="font-mono text-xs h-9 border border-black bg-white"
+            />
+          </div>
+
+          <div className="flex justify-between items-center pt-3 border-t border-black/20">
+            <div>
+              <p className="text-sm">Webhook Notifications</p>
+              <p className="text-[11px] text-black/50">
+                External alert dispatch
+              </p>
             </div>
-            <div className="space-y-1.5">
-              <Label className="text-[11px] text-muted-foreground uppercase tracking-wide">API Key</Label>
-              <Input type="password" value="gsk_••••••••••••••••" readOnly className="font-mono text-xs h-9 bg-secondary/50" />
+
+            <Switch className="data-[state=checked]:bg-black border border-black" defaultChecked />
+          </div>
+        </div>
+
+        {/* THRESHOLDS */}
+        <div className="border-2 border-black bg-white p-5 space-y-6">
+
+          <div className="font-mono text-[10px] text-black/50">
+            THRESHOLD ENGINE
+          </div>
+
+          {/* ESCALATE */}
+          <div>
+            <div className="flex justify-between mb-1">
+              <Label className="text-[10px] uppercase text-black/50">
+                Escalation
+              </Label>
+              <span className="font-mono text-sm">
+                {escalationThreshold[0]}%
+              </span>
             </div>
-            <div className="flex items-center justify-between pt-2">
+
+            <Slider
+              value={escalationThreshold}
+              onValueChange={setEscalationThreshold}
+              max={100}
+              step={1}
+              className="[&_[role=slider]]:bg-[#C2185B]"
+            />
+          </div>
+
+          {/* FLAG */}
+          <div>
+            <div className="flex justify-between mb-1">
+              <Label className="text-[10px] uppercase text-black/50">
+                Flag
+              </Label>
+              <span className="font-mono text-sm">
+                {flagThreshold[0]}%
+              </span>
+            </div>
+
+            <Slider
+              value={flagThreshold}
+              onValueChange={setFlagThreshold}
+              max={100}
+              step={1}
+              className="[&_[role=slider]]:bg-[#F59E0B]"
+            />
+          </div>
+
+          {/* WARN */}
+          <div>
+            <div className="flex justify-between mb-1">
+              <Label className="text-[10px] uppercase text-black/50">
+                Warn
+              </Label>
+              <span className="font-mono text-sm">
+                {warnThreshold[0]}%
+              </span>
+            </div>
+
+            <Slider
+              value={warnThreshold}
+              onValueChange={setWarnThreshold}
+              max={100}
+              step={1}
+              className="[&_[role=slider]]:bg-[#10B981]"
+            />
+          </div>
+
+        </div>
+
+        {/* SYSTEM FLAGS */}
+        <div className="border-2 border-black bg-white p-5 space-y-4">
+
+          <div className="font-mono text-[10px] text-black/50">
+            SYSTEM FLAGS
+          </div>
+
+          {[
+            {
+              title: "Real-time Processing",
+              desc: "Process messages instantly",
+              checked: true,
+            },
+            {
+              title: "Auto-Escalation",
+              desc: "Escalate high-risk signals",
+              checked: true,
+            },
+            {
+              title: "Signal Logging",
+              desc: "Persist execution logs",
+              checked: true,
+            },
+          ].map((item) => (
+            <div
+              key={item.title}
+              className="flex justify-between items-center border-t border-black/10 pt-3"
+            >
               <div>
-                <p className="text-sm font-medium">Webhook Notifications</p>
-                <p className="text-[11px] text-muted-foreground">Send alerts to external systems</p>
+                <p className="text-sm">{item.title}</p>
+                <p className="text-[11px] text-black/50">
+                  {item.desc}
+                </p>
               </div>
-              <Switch defaultChecked />
-            </div>
-          </CardContent>
-        </Card>
 
-        <Card>
-          <CardHeader className="pb-4">
-            <CardTitle className="text-sm font-semibold tracking-tight">Threshold Tuning</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2.5">
-              <div className="flex justify-between">
-                <Label className="text-[11px] text-muted-foreground uppercase tracking-wide">Escalation Threshold</Label>
-                <span className="font-mono font-semibold text-sm">{escalationThreshold[0]}%</span>
-              </div>
-              <Slider value={escalationThreshold} onValueChange={setEscalationThreshold} max={100} step={1} />
+              <Switch
+                defaultChecked={item.checked}
+                className="data-[state=checked]:bg-black border border-black"
+              />
             </div>
-            <div className="space-y-2.5">
-              <div className="flex justify-between">
-                <Label className="text-[11px] text-muted-foreground uppercase tracking-wide">Flag Threshold</Label>
-                <span className="font-mono font-semibold text-sm">{flagThreshold[0]}%</span>
-              </div>
-              <Slider value={flagThreshold} onValueChange={setFlagThreshold} max={100} step={1} />
-            </div>
-            <div className="space-y-2.5">
-              <div className="flex justify-between">
-                <Label className="text-[11px] text-muted-foreground uppercase tracking-wide">Warn Threshold</Label>
-                <span className="font-mono font-semibold text-sm">{warnThreshold[0]}%</span>
-              </div>
-              <Slider value={warnThreshold} onValueChange={setWarnThreshold} max={100} step={1} />
-            </div>
-          </CardContent>
-        </Card>
+          ))}
+        </div>
 
-        <Card>
-          <CardHeader className="pb-4">
-            <CardTitle className="text-sm font-semibold tracking-tight">System Configuration</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {[
-              { title: "Real-time Processing", desc: "Process messages as they arrive", checked: true },
-              { title: "Auto-Escalation", desc: "Automatically escalate DANGEROUS verdicts", checked: true },
-              { title: "Signal Logging", desc: "Log all safety signals to audit trail", checked: true },
-            ].map((item) => (
-              <div key={item.title} className="flex items-center justify-between py-1">
-                <div>
-                  <p className="text-sm font-medium">{item.title}</p>
-                  <p className="text-[11px] text-muted-foreground">{item.desc}</p>
-                </div>
-                <Switch defaultChecked={item.checked} />
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+        {/* SAVE */}
+        <button className="w-full border-2 border-black py-3 font-mono text-sm bg-black text-white hover:bg-white hover:text-black transition">
+          APPLY CONFIGURATION
+        </button>
 
-        <Button className="w-full h-10">Save Changes</Button>
       </div>
     </AppLayout>
   );
