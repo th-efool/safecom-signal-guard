@@ -84,13 +84,20 @@ const SettingsPage = () => {
               </span>
             </div>
 
-            <Slider
-              value={escalationThreshold}
-              onValueChange={setEscalationThreshold}
-              max={100}
-              step={1}
-              className="[&_[role=slider]]:bg-[#C2185B]"
-            />
+          <Slider
+            value={escalationThreshold}
+            onValueChange={setEscalationThreshold}
+            max={100}
+            step={1}
+            className="
+              [&_[data-orientation=horizontal]]:h-2
+              [&_[data-orientation=horizontal]]:bg-black/20
+              [&_[data-orientation=horizontal]>span]:bg-[#C2185B]
+              [&_[role=slider]]:bg-[#C2185B]
+              [&_[role=slider]]:border-2
+              [&_[role=slider]]:border-black
+            "
+          />
           </div>
 
           {/* FLAG */}
@@ -104,14 +111,20 @@ const SettingsPage = () => {
               </span>
             </div>
 
-            <Slider
-              value={flagThreshold}
-              onValueChange={setFlagThreshold}
-              max={100}
-              step={1}
-              className="[&_[role=slider]]:bg-[#F59E0B]"
-            />
-          </div>
+          <Slider
+            value={flagThreshold}
+            onValueChange={setFlagThreshold}
+            max={100}
+            step={1}
+            className="
+              [&_[data-orientation=horizontal]]:h-2
+              [&_[data-orientation=horizontal]]:bg-black/20
+              [&_[data-orientation=horizontal]>span]:bg-[#F59E0B]
+              [&_[role=slider]]:bg-[#F59E0B]
+              [&_[role=slider]]:border-2
+              [&_[role=slider]]:border-black
+            "
+          />
 
           {/* WARN */}
           <div>
