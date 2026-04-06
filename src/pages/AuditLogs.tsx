@@ -1,200 +1,148 @@
 import { AppLayout } from "@/components/AppLayout";
-import { VerdictBadge, ActionBadge } from "@/components/StatusBadge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useState } from "react";
 
 type Log = {
-  reference_id: string;
-  timestamp: string;
-  threat_level: number;
-  risk_status: "Safe" | "Suspicious" | "Dangerous";
-  action: "ALLOW" | "WARN" | "FLAG" | "ESCALATE";
+  id: string;
+  threat: string;
+  action: string;
   confidence: number;
-  latency_ms: number;
-  decision_time_ms: number;
+  latency: number;
+  decision: string;
   stage: string;
-  request_scope_id: string;
-  processing_node: string;
-  policy_version: string;
-  privacy_mode: string;
 };
 
-const logs: Log[] = [/* keep your data */];
+const logs: Log[] = [
+  {
+    id: "LOG-001",
+    threat: "Direct Threat",
+    action: "ESCALATE",
+    confidence: 94,
+    latency: 182,
+    decision: "Dangerous",
+    stage: "ThreatDetector",
+  },
+  {
+    id: "LOG-002",
+    threat: "Coercion",
+    action: "FLAG",
+    confidence: 71,
+    latency: 140,
+    decision: "Suspicious",
+    stage: "RiskAnalyzer",
+  },
+];
+
+const getColor = (decision: string) => {
+  if (decision === "Dangerous") return "#C2185B";
+  if (decision === "Suspicious") return "#F59E0B";
+  return "#10B981";
+};
 
 const AuditLogs = () => {
-  const [levelFilter, setLevelFilter] = useState("all");
-  const [actionFilter, setActionFilter] = useState("all");
-
-  const filtered = logs.filter((l) => {
-    if (levelFilter !== "all" && l.risk_status !== levelFilter) return false;
-    if (actionFilter !== "all" && l.action !== actionFilter) return false;
-    return true;
-  });
+  const [level, setLevel] = useState("All Levels");
+  const [open, setOpen] = useState(false);
 
   return (
     <AppLayout>
       <div className="space-y-6">
 
         {/* HEADER */}
-        <div className="flex items-end justify-between border-b border-black pb-4">
-          <div>
-            <h1 className="text-xl font-semibold uppercase">
-              System Logs
-            </h1>
-            <p className="font-mono text-xs text-black/60 mt-1">
-              &gt; EXECUTION TELEMETRY · STATELESS · ZERO STORAGE
-            </p>
-          </div>
-
-          <span className="font-mono text-xs border border-black px-2 py-1">
-            {filtered.length} EXECUTIONS
-          </span>
+        <div className="border-b border-black pb-4">
+          <h1 className="text-2xl font-semibold uppercase">
+            System Logs
+          </h1>
+          <p className="font-mono text-xs text-black/60 mt-1">
+            &gt; EXECUTION TELEMETRY · ZERO STORAGE
+          </p>
         </div>
 
         {/* FILTERS */}
-        <div className="flex gap-3">
+        <div className="flex gap-3 relative">
 
-          <Select value={levelFilter} onValueChange={setLevelFilter}>
-            <SelectTrigger className="w-40 h-9 text-xs border border-black bg-white text-black">
-              <SelectValue placeholder="Threat Level" />
-            </SelectTrigger>
+          {/* DROPDOWN */}
+          <div className="relative">
+            <button
+              onClick={() => setOpen(!open)}
+              className="border border-black px-3 py-1 text-sm bg-white"
+            >
+              {level}
+            </button>
 
-            <SelectContent className="bg-white border border-black text-black">
-              <SelectItem value="all" className="hover:bg-black hover:text-white">
-                All Levels
-              </SelectItem>
-              <SelectItem value="Safe" className="hover:bg-black hover:text-white">
-                Safe
-              </SelectItem>
-              <SelectItem value="Suspicious" className="hover:bg-black hover:text-white">
-                Suspicious
-              </SelectItem>
-              <SelectItem value="Dangerous" className="hover:bg-black hover:text-white">
-                Dangerous
-              </SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={actionFilter} onValueChange={setActionFilter}>
-            <SelectTrigger className="w-40 h-9 text-xs border border-black bg-white text-black">
-              <SelectValue placeholder="Action" />
-            </SelectTrigger>
-
-            <SelectContent className="bg-white border border-black text-black">
-              <SelectItem value="all" className="hover:bg-black hover:text-white">
-                All Actions
-              </SelectItem>
-              <SelectItem value="ALLOW" className="hover:bg-black hover:text-white">
-                Allow
-              </SelectItem>
-              <SelectItem value="WARN" className="hover:bg-black hover:text-white">
-                Warn
-              </SelectItem>
-              <SelectItem value="FLAG" className="hover:bg-black hover:text-white">
-                Flag
-              </SelectItem>
-              <SelectItem value="ESCALATE" className="hover:bg-black hover:text-white">
-                Escalate
-              </SelectItem>
-            </SelectContent>
-          </Select>
+            {open && (
+              <div
+                className="
+                  absolute top-full mt-1 w-[160px]
+                  bg-white border border-black z-50
+                  shadow-[4px_4px_0px_black]
+                "
+              >
+                {["All Levels", "Dangerous", "Suspicious", "Safe"].map((opt) => (
+                  <div
+                    key={opt}
+                    onClick={() => {
+                      setLevel(opt);
+                      setOpen(false);
+                    }}
+                    className="
+                      px-3 py-2 text-sm cursor-pointer
+                      text-black bg-white
+                      hover:bg-black hover:text-white
+                    "
+                  >
+                    {opt}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
         </div>
 
         {/* TABLE */}
-        <div className="border border-black overflow-x-auto">
+        <div className="border-2 border-black">
 
-          <table className="w-full text-sm font-mono">
+          {/* HEADER */}
+          <div className="grid grid-cols-6 text-[11px] font-mono border-b border-black p-2 bg-white">
+            <span>THREAT</span>
+            <span>ACTION</span>
+            <span>CONF</span>
+            <span>LATENCY</span>
+            <span>DECISION</span>
+            <span>STAGE</span>
+          </div>
 
-            {/* HEAD */}
-            <thead>
-              <tr className="border-b border-black text-[10px] uppercase bg-white">
-                <th className="px-4 py-3 text-left">Ref</th>
-                <th className="px-4 py-3 text-left">Time</th>
-                <th className="px-4 py-3 text-left">Threat</th>
-                <th className="px-4 py-3 text-left">Action</th>
-                <th className="px-4 py-3 text-left">Conf</th>
-                <th className="px-4 py-3 text-left">Latency</th>
-                <th className="px-4 py-3 text-left">Decision</th>
-                <th className="px-4 py-3 text-left">Stage</th>
-                <th className="px-4 py-3 text-left">Req</th>
-                <th className="px-4 py-3 text-left">Node</th>
-                <th className="px-4 py-3 text-left">Policy</th>
-                <th className="px-4 py-3 text-left">Privacy</th>
-              </tr>
-            </thead>
+          {/* ROWS */}
+          {logs.map((log) => {
+            const color = getColor(log.decision);
 
-            {/* BODY */}
-            <tbody>
-              {filtered.map((log) => (
-                <tr
-                  key={log.reference_id}
-                  className="border-b border-black/20 hover:bg-black/5 transition"
+            return (
+              <div
+                key={log.id}
+                className="grid grid-cols-6 text-xs p-2 border-t border-black/10 bg-white hover:bg-black/5"
+              >
+                <span>{log.threat}</span>
+                <span className="font-mono">{log.action}</span>
+                <span>{log.confidence}%</span>
+                <span>{log.latency}ms</span>
+
+                <span
+                  className="px-2 py-0.5 text-xs font-mono border w-fit"
+                  style={{
+                    background: color,
+                    color: "white",
+                    borderColor: color,
+                  }}
                 >
-                  <td className="px-4 py-3 text-xs">{log.reference_id}</td>
+                  {log.decision}
+                </span>
 
-                  <td className="px-4 py-3 text-[11px] text-black/60">
-                    {log.timestamp}
-                  </td>
+                <span className="font-mono text-black/60">
+                  {log.stage}
+                </span>
+              </div>
+            );
+          })}
 
-                  <td className="px-4 py-3">
-                    <VerdictBadge
-                      verdict={
-                        log.risk_status === "Dangerous"
-                          ? "DANGEROUS"
-                          : log.risk_status === "Suspicious"
-                          ? "SUSPICIOUS"
-                          : "SAFE"
-                      }
-                    />
-                  </td>
-
-                  <td className="px-4 py-3">
-                    <ActionBadge action={log.action} />
-                  </td>
-
-                  <td className="px-4 py-3 text-xs">
-                    {log.confidence}%
-                  </td>
-
-                  <td className="px-4 py-3 text-xs">
-                    {log.latency_ms}ms
-                  </td>
-
-                  <td className="px-4 py-3 text-xs text-black/50">
-                    {log.decision_time_ms}ms
-                  </td>
-
-                  <td className="px-4 py-3 text-xs text-black/50">
-                    {log.stage}
-                  </td>
-
-                  <td className="px-4 py-3 text-xs">
-                    {log.request_scope_id}
-                  </td>
-
-                  <td className="px-4 py-3 text-xs">
-                    {log.processing_node}
-                  </td>
-
-                  <td className="px-4 py-3 text-xs text-black/50">
-                    {log.policy_version}
-                  </td>
-
-                  <td className="px-4 py-3 text-xs text-black/50">
-                    {log.privacy_mode}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-
-          </table>
         </div>
 
       </div>
