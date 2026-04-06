@@ -96,8 +96,8 @@ const Violations = () => {
   return (
     <AppLayout>
       {/* padding override FIX */}
-      <div className="-m-6 p-6 space-y-6">
-
+      <div className="-m-6 p-6">
+      <div className="space-y-6">
         {/* HEADER */}
         <div className="border-b border-black pb-4">
           <h1 className="text-2xl font-semibold uppercase">Violations</h1>
@@ -168,6 +168,9 @@ const Violations = () => {
               </div>
             );
           })}
+        </div>
+
+
         </div>
 
         {/* ✅ SIMPLE MODAL (NO PORTAL = NO BUGS) */}
