@@ -1,7 +1,8 @@
 import { AppLayout } from "@/components/AppLayout";
 import { ActionBadge } from "@/components/StatusBadge";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 type Violation = {
   reference_id: string;
@@ -53,7 +54,6 @@ const violations: Violation[] = [
     latency_ms: 1390,
     timestamp: "2024-12-15 12:01:44",
   },
-
   {
     reference_id: "VC-1004",
     threat_level: 6,
@@ -78,100 +78,21 @@ const violations: Violation[] = [
     latency_ms: 1505,
     timestamp: "2024-12-15 12:07:45",
   },
-  {
-    reference_id: "VC-1006",
-    threat_level: 6,
-    intent_classification: "Scam Attempt",
-    risk_status: "Suspicious",
-    confidence: 81,
-    recommended_action: "Flag and restrict account actions",
-    privacy_mode: "in-memory",
-    storage: "none",
-    latency_ms: 1670,
-    timestamp: "2024-12-15 12:08:21",
-  },
-  {
-    reference_id: "VC-1007",
-    threat_level: 7,
-    intent_classification: "Social Engineering",
-    risk_status: "Dangerous",
-    confidence: 86,
-    recommended_action: "Escalate and initiate verification protocol",
-    privacy_mode: "in-memory",
-    storage: "none",
-    latency_ms: 1785,
-    timestamp: "2024-12-15 12:09:02",
-  },
-  {
-    reference_id: "VC-1008",
-    threat_level: 4,
-    intent_classification: "Ambiguous Threat",
-    risk_status: "Suspicious",
-    confidence: 62,
-    recommended_action: "Monitor — insufficient evidence",
-    privacy_mode: "in-memory",
-    storage: "none",
-    latency_ms: 1100,
-    timestamp: "2024-12-15 12:10:33",
-  },
-  {
-    reference_id: "VC-1009",
-    threat_level: 3,
-    intent_classification: "Manipulative Tone",
-    risk_status: "Suspicious",
-    confidence: 58,
-    recommended_action: "Soft flag for tracking",
-    privacy_mode: "in-memory",
-    storage: "none",
-    latency_ms: 980,
-    timestamp: "2024-12-15 12:11:10",
-  },
-  {
-    reference_id: "VC-1010",
-    threat_level: 9,
-    intent_classification: "Credible Violent Threat",
-    risk_status: "Dangerous",
-    confidence: 97,
-    recommended_action: "Immediate escalation protocol",
-    privacy_mode: "in-memory",
-    storage: "none",
-    latency_ms: 2010,
-    timestamp: "2024-12-15 12:12:48",
-  },
-  {
-    reference_id: "VC-1011",
-    threat_level: 2,
-    intent_classification: "Mild Toxicity",
-    risk_status: "Safe",
-    confidence: 52,
-    recommended_action: "Allow",
-    privacy_mode: "in-memory",
-    storage: "none",
-    latency_ms: 860,
-    timestamp: "2024-12-15 12:13:22",
-  },
-  {
-    reference_id: "VC-1012",
-    threat_level: 1,
-    intent_classification: "Normal Conversation",
-    risk_status: "Safe",
-    confidence: 99,
-    recommended_action: "Allow",
-    privacy_mode: "in-memory",
-    storage: "none",
-    latency_ms: 720,
-    timestamp: "2024-12-15 12:14:05",
-  },
 ];
 
 const getColor = (status: Violation["risk_status"]) => {
-  if (status === "Dangerous") return "#C2185B";
-  if (status === "Suspicious") return "#F59E0B";
-  return "#10B981";
+  if (status === "Dangerous") return "#e11d48";   // red
+  if (status === "Suspicious") return "#f59e0b";  // amber
+  return "#10b981";                              // green
 };
 
 const Violations = () => {
   const [active, setActive] = useState<Violation | null>(null);
+
+  // 🔒 prevent scroll when modal open
+  useEffect(() => {
+    document.body.style.overflow = active ? "hidden" : "auto";
+  }, [active]);
 
   return (
     <AppLayout>
@@ -179,9 +100,7 @@ const Violations = () => {
 
         {/* HEADER */}
         <div className="border-b border-black pb-4">
-          <h1 className="text-2xl font-semibold uppercase">
-            Violations
-          </h1>
+          <h1 className="text-2xl font-semibold uppercase">Violations</h1>
           <p className="font-mono text-xs text-black/60 mt-1">
             &gt; REFERENCE EVENTS · ZERO STORAGE
           </p>
@@ -202,7 +121,6 @@ const Violations = () => {
 
                   {/* LEFT */}
                   <div className="flex items-center gap-4">
-
                     <span className="font-mono text-xs text-black/50">
                       {v.reference_id}
                     </span>
@@ -225,7 +143,6 @@ const Violations = () => {
 
                   {/* RIGHT */}
                   <div className="flex items-center gap-3">
-
                     <span className="text-xs font-mono">
                       {v.threat_level.toFixed(1)}/10
                     </span>
@@ -256,95 +173,93 @@ const Violations = () => {
           })}
         </div>
 
-        {/* POP PANEL MODAL */}
-        <AnimatePresence>
-        {active &&
-          createPortal(
-            <motion.div
-              className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-sm flex items-center justify-center"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setActive(null)}
-            >
-              <motion.div
-                onClick={(e) => e.stopPropagation()}
-                initial={{ scale: 0.95 }}
-                animate={{ scale: 1 }}
-                exit={{ scale: 0.95 }}
-                className="bg-white border-2 border-black p-6 w-[460px] shadow-[8px_8px_0px_black] relative"
-              >
-                <div className="absolute top-0 left-0 w-full h-[3px] bg-[#C2185B]" />
-      
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="font-semibold">
-                    {active.reference_id} — Analysis
-                  </h2>
-      
-                  <button
-                    onClick={() => setActive(null)}
-                    className="border border-black px-2 text-xs"
+        {/* MODAL */}
+        {typeof document !== "undefined" && (
+          <AnimatePresence>
+            {active &&
+              createPortal(
+                <motion.div
+                  className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-sm flex items-center justify-center"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setActive(null)}
+                >
+                  <motion.div
+                    onClick={(e) => e.stopPropagation()}
+                    initial={{ scale: 0.95 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0.95 }}
+                    className="bg-white border-2 border-black p-6 w-[460px] shadow-[8px_8px_0px_black] relative"
                   >
-                    X
-                  </button>
-                </div>
-      
-                {/* SCORE */}
-                <div className="mb-4">
-                  <div className="text-xs font-mono mb-1">
-                    THREAT SCORE
-                  </div>
-      
-                  <div className="text-3xl font-mono">
-                    {active.threat_level.toFixed(1)} / 10
-                  </div>
-      
-                  <div className="h-2 bg-black/10 mt-2">
-                    <div
-                      className="h-full"
-                      style={{
-                        width: `${active.threat_level * 10}%`,
-                        background: getColor(active.risk_status),
-                      }}
-                    />
-                  </div>
-      
-                  <div className="text-xs font-mono mt-2 text-black/60">
-                    Confidence: {active.confidence}%
-                  </div>
-                </div>
-      
-                {/* ACTION */}
-                <div className="mb-4">
-                  <div className="text-xs font-mono mb-1">
-                    ACTION
-                  </div>
-                  <div className="text-sm">
-                    {active.recommended_action}
-                  </div>
-                </div>
-      
-                {/* META */}
-                <div className="text-xs font-mono border-t pt-3 text-black/60 space-y-1">
-                  <div className="flex justify-between">
-                    <span>Latency</span>
-                    <span>{active.latency_ms}ms</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Mode</span>
-                    <span>{active.privacy_mode}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Storage</span>
-                    <span>{active.storage}</span>
-                  </div>
-                </div>
-      
-              </motion.div>
-            </motion.div>,
-            document.body
-          )}
-      </AnimatePresence>
+                    <div className="absolute top-0 left-0 w-full h-[3px] bg-red-600" />
+
+                    <div className="flex justify-between items-center mb-4">
+                      <h2 className="font-semibold">
+                        {active.reference_id} — Analysis
+                      </h2>
+
+                      <button
+                        onClick={() => setActive(null)}
+                        className="border border-black px-2 text-xs"
+                      >
+                        X
+                      </button>
+                    </div>
+
+                    {/* SCORE */}
+                    <div className="mb-4">
+                      <div className="text-xs font-mono mb-1">THREAT SCORE</div>
+
+                      <div className="text-3xl font-mono">
+                        {active.threat_level.toFixed(1)} / 10
+                      </div>
+
+                      <div className="h-2 bg-black/10 mt-2">
+                        <div
+                          className="h-full"
+                          style={{
+                            width: `${active.threat_level * 10}%`,
+                            background: getColor(active.risk_status),
+                          }}
+                        />
+                      </div>
+
+                      <div className="text-xs font-mono mt-2 text-black/60">
+                        Confidence: {active.confidence}%
+                      </div>
+                    </div>
+
+                    {/* ACTION */}
+                    <div className="mb-4">
+                      <div className="text-xs font-mono mb-1">ACTION</div>
+                      <div className="text-sm">
+                        {active.recommended_action}
+                      </div>
+                    </div>
+
+                    {/* META */}
+                    <div className="text-xs font-mono border-t pt-3 text-black/60 space-y-1">
+                      <div className="flex justify-between">
+                        <span>Latency</span>
+                        <span>{active.latency_ms}ms</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Mode</span>
+                        <span>{active.privacy_mode}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Storage</span>
+                        <span>{active.storage}</span>
+                      </div>
+                    </div>
+
+                  </motion.div>
+                </motion.div>,
+                document.body
+              )}
+          </AnimatePresence>
+        )}
 
       </div>
     </AppLayout>
