@@ -68,17 +68,16 @@ const SettingsPage = () => {
             />
           </div>
         </div>
-
         {/* THRESHOLDS */}
         <div className="border-2 border-black bg-white p-5 space-y-6">
-
+        
           <div className="font-mono text-[10px] text-black/50">
             THRESHOLD ENGINE
           </div>
-
+        
           {/* ESCALATION */}
           <div>
-            <div className="flex justify-between mb-1">
+            <div className="flex justify-between mb-2">
               <Label className="text-[10px] uppercase text-black/50">
                 Escalation
               </Label>
@@ -86,19 +85,25 @@ const SettingsPage = () => {
                 {escalationThreshold[0]}%
               </span>
             </div>
-
+        
             <Slider
               value={escalationThreshold}
               onValueChange={setEscalationThreshold}
               max={100}
               step={1}
-              className="slider-red"
+              className="
+                [&_[role=slider]]:bg-[#C2185B]
+                [&_[role=slider]]:border-2
+                [&_[role=slider]]:border-black
+                [&_.relative]:bg-black/10
+                [&_.absolute]:bg-[#C2185B]
+              "
             />
           </div>
-
+        
           {/* FLAG */}
           <div>
-            <div className="flex justify-between mb-1">
+            <div className="flex justify-between mb-2">
               <Label className="text-[10px] uppercase text-black/50">
                 Flag
               </Label>
@@ -106,19 +111,25 @@ const SettingsPage = () => {
                 {flagThreshold[0]}%
               </span>
             </div>
-
+        
             <Slider
               value={flagThreshold}
               onValueChange={setFlagThreshold}
               max={100}
               step={1}
-              className="slider-yellow"
+              className="
+                [&_[role=slider]]:bg-[#F59E0B]
+                [&_[role=slider]]:border-2
+                [&_[role=slider]]:border-black
+                [&_.relative]:bg-black/10
+                [&_.absolute]:bg-[#F59E0B]
+              "
             />
           </div>
-
+        
           {/* WARN */}
           <div>
-            <div className="flex justify-between mb-1">
+            <div className="flex justify-between mb-2">
               <Label className="text-[10px] uppercase text-black/50">
                 Warn
               </Label>
@@ -126,16 +137,22 @@ const SettingsPage = () => {
                 {warnThreshold[0]}%
               </span>
             </div>
-
+        
             <Slider
               value={warnThreshold}
               onValueChange={setWarnThreshold}
               max={100}
               step={1}
-              className="slider-green"
+              className="
+                [&_[role=slider]]:bg-[#10B981]
+                [&_[role=slider]]:border-2
+                [&_[role=slider]]:border-black
+                [&_.relative]:bg-black/10
+                [&_.absolute]:bg-[#10B981]
+              "
             />
           </div>
-
+        
         </div>
 
         {/* SYSTEM FLAGS */}
