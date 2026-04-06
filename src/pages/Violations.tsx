@@ -2,7 +2,7 @@ import { AppLayout } from "@/components/AppLayout";
 import { ActionBadge } from "@/components/StatusBadge";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-import { createPortal } from "react-dom";
+
 
 type Violation = {
   reference_id: string;
@@ -81,9 +81,9 @@ const violations: Violation[] = [
 ];
 
 const getColor = (status: Violation["risk_status"]) => {
-  if (status === "Dangerous") return "#e11d48"; // red
-  if (status === "Suspicious") return "#f59e0b"; // amber
-  return "#10b981"; // green
+  if (status === "Dangerous") return "#e11d48";
+  if (status === "Suspicious") return "#f59e0b";
+  return "#10b981";
 };
 
 const Violations = () => {
@@ -95,7 +95,7 @@ const Violations = () => {
 
   return (
     <AppLayout>
-      {/* 🔥 THIS LINE FIXES YOUR GAP */}
+      {/* padding override FIX */}
       <div className="-m-6 p-6 space-y-6">
 
         {/* HEADER */}
@@ -119,7 +119,6 @@ const Violations = () => {
               >
                 <div className="flex justify-between items-center">
 
-                  {/* LEFT */}
                   <div className="flex items-center gap-4">
                     <span className="font-mono text-xs text-black/50">
                       {v.reference_id}
@@ -141,7 +140,6 @@ const Violations = () => {
                     </span>
                   </div>
 
-                  {/* RIGHT */}
                   <div className="flex items-center gap-3">
                     <span className="text-xs font-mono">
                       {v.threat_level.toFixed(1)}/10
@@ -158,7 +156,6 @@ const Violations = () => {
                   </div>
                 </div>
 
-                {/* BAR */}
                 <div className="mt-3 h-1.5 bg-black/10">
                   <div
                     className="h-full"
@@ -173,32 +170,86 @@ const Violations = () => {
           })}
         </div>
 
-        {/* MODAL */}
-        {typeof document !== "undefined" && (
-         <AnimatePresence>
-  {active &&
-    createPortal(
-      <motion.div
-        className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-sm flex items-center justify-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={() => setActive(null)}
-      >
-        <motion.div
-          onClick={(e) => e.stopPropagation()}
-          initial={{ scale: 0.95 }}
-          animate={{ scale: 1 }}
-          exit={{ scale: 0.95 }}
-          className="bg-white border-2 border-black p-6 w-[460px] shadow-[8px_8px_0px_black]"
-        >
-          <h2>{active.reference_id}</h2>
-        </motion.div>
-      </motion.div>,
-      document.getElementById("root") || document.body
-    )}
-</AnimatePresence>
-        )}
+        {/* ✅ SIMPLE MODAL (NO PORTAL = NO BUGS) */}
+        <AnimatePresence>
+          {active && (
+            <motion.div
+              className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-sm flex items-center justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setActive(null)}
+            >
+              <motion.div
+                onClick={(e) => e.stopPropagation()}
+                initial={{ scale: 0.95 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0.95 }}
+                className="bg-white border-2 border-black p-6 w-[460px] shadow-[8px_8px_0px_black]"
+              >
+                <div className="flex justify-between mb-4">
+                  <h2 className="font-semibold">
+                    {active.reference_id} — Analysis
+                  </h2>
+
+                  <button
+                    onClick={() => setActive(null)}
+                    className="border border-black px-2 text-xs"
+                  >
+                    X
+                  </button>
+                </div>
+
+                <div className="mb-4">
+                  <div className="text-xs font-mono mb-1">
+                    THREAT SCORE
+                  </div>
+
+                  <div className="text-3xl font-mono">
+                    {active.threat_level.toFixed(1)} / 10
+                  </div>
+
+                  <div className="h-2 bg-black/10 mt-2">
+                    <div
+                      className="h-full"
+                      style={{
+                        width: `${active.threat_level * 10}%`,
+                        background: getColor(active.risk_status),
+                      }}
+                    />
+                  </div>
+
+                  <div className="text-xs font-mono mt-2 text-black/60">
+                    Confidence: {active.confidence}%
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <div className="text-xs font-mono mb-1">ACTION</div>
+                  <div className="text-sm">
+                    {active.recommended_action}
+                  </div>
+                </div>
+
+                <div className="text-xs font-mono border-t pt-3 text-black/60 space-y-1">
+                  <div className="flex justify-between">
+                    <span>Latency</span>
+                    <span>{active.latency_ms}ms</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Mode</span>
+                    <span>{active.privacy_mode}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Storage</span>
+                    <span>{active.storage}</span>
+                  </div>
+                </div>
+
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
       </div>
     </AppLayout>
