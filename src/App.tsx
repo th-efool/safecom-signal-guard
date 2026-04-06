@@ -11,6 +11,7 @@ import Agents from "./pages/Agents.tsx";
 import Policies from "./pages/Policies.tsx";
 import SettingsPage from "./pages/Settings.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import LandingPage from "./pages/LandingPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -21,7 +22,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/dashboard" element={<Index />} />
           <Route path="/monitor" element={<LiveMonitor />} />
           <Route path="/audit" element={<AuditLogs />} />
           <Route path="/violations" element={<Violations />} />
