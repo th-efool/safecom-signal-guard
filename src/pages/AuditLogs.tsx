@@ -1,5 +1,6 @@
 import { AppLayout } from "@/components/AppLayout";
 import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 
 type Log = {
   id: string;
@@ -24,27 +25,58 @@ const logs: Log[] = [
   { id: "10", threat: "Normal Chat", action: "ALLOW", confidence: 99, latency: 80, decision: "Safe", stage: "ContextAnalyzer" },
 ];
 
-const getColor = (decision: Log["decision"]) => {
-  if (decision === "Dangerous") return "#C2185B";
-  if (decision === "Suspicious") return "#F59E0B";
-  return "#10B981";
+const getColor = (d: Log["decision"]) => {
+  if (d === "Dangerous") return "bg-[#C2185B] text-white";
+  if (d === "Suspicious") return "bg-[#F59E0B] text-white";
+  return "bg-[#10B981] text-white";
 };
 
 const AuditLogs = () => {
-  const [levelFilter, setLevelFilter] = useState("All");
-  const [actionFilter, setActionFilter] = useState("All");
+  const [level, setLevel] = useState("All Levels");
+  const [action, setAction] = useState("All Actions");
 
-  const [openLevel, setOpenLevel] = useState(false);
-  const [openAction, setOpenAction] = useState(false);
+  const [open, setOpen] = useState<null | "level" | "action">(null);
 
-  const filteredLogs = logs.filter((log) => {
-    const levelMatch =
-      levelFilter === "All" || log.decision === levelFilter;
-    const actionMatch =
-      actionFilter === "All" || log.action === actionFilter;
-
-    return levelMatch && actionMatch;
+  const filtered = logs.filter((l) => {
+    const levelOk = level === "All Levels" || l.decision === level;
+    const actionOk = action === "All Actions" || l.action === action;
+    return levelOk && actionOk;
   });
+
+  const Dropdown = ({
+    label,
+    value,
+    options,
+    type,
+    setValue,
+  }: any) => (
+    <div className="relative">
+      <button
+        onClick={() => setOpen(open === type ? null : type)}
+        className="flex items-center gap-2 border border-black px-3 py-1.5 bg-white text-sm"
+      >
+        {value}
+        <ChevronDown size={14} />
+      </button>
+
+      {open === type && (
+        <div className="absolute top-full mt-1 w-[180px] bg-white border border-black shadow-[4px_4px_0px_black] z-50">
+          {options.map((opt: string) => (
+            <div
+              key={opt}
+              onClick={() => {
+                setValue(opt);
+                setOpen(null);
+              }}
+              className="px-3 py-2 text-sm cursor-pointer hover:bg-black hover:text-white"
+            >
+              {opt}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <AppLayout>
@@ -61,69 +93,29 @@ const AuditLogs = () => {
         </div>
 
         {/* FILTERS */}
-        <div className="flex gap-3 relative">
+        <div className="flex gap-3">
+          <Dropdown
+            label="Level"
+            value={level}
+            options={["All Levels", "Dangerous", "Suspicious", "Safe"]}
+            type="level"
+            setValue={setLevel}
+          />
 
-          {/* LEVEL FILTER */}
-          <div className="relative">
-            <button
-              onClick={() => setOpenLevel(!openLevel)}
-              className="border border-black px-3 py-1 bg-white text-sm"
-            >
-              {levelFilter}
-            </button>
-
-            {openLevel && (
-              <div className="absolute top-full mt-1 w-[160px] bg-white border border-black z-50 shadow-[4px_4px_0px_black]">
-                {["All", "Dangerous", "Suspicious", "Safe"].map((opt) => (
-                  <div
-                    key={opt}
-                    onClick={() => {
-                      setLevelFilter(opt);
-                      setOpenLevel(false);
-                    }}
-                    className="px-3 py-2 text-sm cursor-pointer text-black hover:bg-black hover:text-white"
-                  >
-                    {opt}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* ACTION FILTER */}
-          <div className="relative">
-            <button
-              onClick={() => setOpenAction(!openAction)}
-              className="border border-black px-3 py-1 bg-white text-sm"
-            >
-              {actionFilter}
-            </button>
-
-            {openAction && (
-              <div className="absolute top-full mt-1 w-[160px] bg-white border border-black z-50 shadow-[4px_4px_0px_black]">
-                {["All", "ESCALATE", "FLAG", "ALLOW"].map((opt) => (
-                  <div
-                    key={opt}
-                    onClick={() => {
-                      setActionFilter(opt);
-                      setOpenAction(false);
-                    }}
-                    className="px-3 py-2 text-sm cursor-pointer text-black hover:bg-black hover:text-white"
-                  >
-                    {opt}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
+          <Dropdown
+            label="Action"
+            value={action}
+            options={["All Actions", "ESCALATE", "FLAG", "ALLOW"]}
+            type="action"
+            setValue={setAction}
+          />
         </div>
 
         {/* TABLE */}
-        <div className="border-2 border-black">
+        <div className="border border-black">
 
           {/* HEADER */}
-          <div className="grid grid-cols-6 text-[11px] font-mono border-b border-black p-2 bg-white">
+          <div className="grid grid-cols-6 text-[11px] font-mono px-4 py-2 border-b border-black bg-white">
             <span>THREAT</span>
             <span>ACTION</span>
             <span>CONF</span>
@@ -133,44 +125,27 @@ const AuditLogs = () => {
           </div>
 
           {/* ROWS */}
-          {filteredLogs.length === 0 ? (
-            <div className="p-4 text-sm font-mono text-black/50">
-              NO MATCHING LOGS
+          {filtered.map((log) => (
+            <div
+              key={log.id}
+              className="grid grid-cols-6 px-4 py-2 text-sm border-t border-black/10 hover:bg-black/5"
+            >
+              <span>{log.threat}</span>
+              <span className="font-mono">{log.action}</span>
+              <span>{log.confidence}%</span>
+              <span className="font-mono">{log.latency}ms</span>
+
+              <span className={`px-2 py-0.5 text-xs w-fit ${getColor(log.decision)}`}>
+                {log.decision}
+              </span>
+
+              <span className="font-mono text-black/60">
+                {log.stage}
+              </span>
             </div>
-          ) : (
-            filteredLogs.map((log) => {
-              const color = getColor(log.decision);
+          ))}
 
-              return (
-                <div
-                  key={log.id}
-                  className="grid grid-cols-6 text-xs p-2 border-t border-black/10 bg-white hover:bg-black/5"
-                >
-                  <span>{log.threat}</span>
-                  <span className="font-mono">{log.action}</span>
-                  <span>{log.confidence}%</span>
-                  <span>{log.latency}ms</span>
-
-                  <span
-                    className="px-2 py-0.5 text-xs font-mono border w-fit"
-                    style={{
-                      background: color,
-                      color: "white",
-                      borderColor: color,
-                    }}
-                  >
-                    {log.decision}
-                  </span>
-
-                  <span className="font-mono text-black/60">
-                    {log.stage}
-                  </span>
-                </div>
-              );
-            })
-          )}
         </div>
-
       </div>
     </AppLayout>
   );
