@@ -81,24 +81,23 @@ const violations: Violation[] = [
 ];
 
 const getColor = (status: Violation["risk_status"]) => {
-  if (status === "Dangerous") return "#e11d48";   // red
-  if (status === "Suspicious") return "#f59e0b";  // amber
-  return "#10b981";                              // green
+  if (status === "Dangerous") return "#e11d48"; // red
+  if (status === "Suspicious") return "#f59e0b"; // amber
+  return "#10b981"; // green
 };
 
 const Violations = () => {
   const [active, setActive] = useState<Violation | null>(null);
 
-  // 🔒 prevent scroll when modal open
   useEffect(() => {
     document.body.style.overflow = active ? "hidden" : "auto";
   }, [active]);
 
   return (
     <AppLayout>
-    <>
-    <div className="-m-6 p-6 space-y-6">
-        
+      {/* 🔥 THIS LINE FIXES YOUR GAP */}
+      <div className="-m-6 p-6 space-y-6">
+
         {/* HEADER */}
         <div className="border-b border-black pb-4">
           <h1 className="text-2xl font-semibold uppercase">Violations</h1>
@@ -174,9 +173,7 @@ const Violations = () => {
           })}
         </div>
 
-       
-      </div>
-       {/* MODAL */}
+        {/* MODAL */}
         {typeof document !== "undefined" && (
           <AnimatePresence>
             {active &&
@@ -264,7 +261,7 @@ const Violations = () => {
           </AnimatePresence>
         )}
 
-      </>
+      </div>
     </AppLayout>
   );
 };
