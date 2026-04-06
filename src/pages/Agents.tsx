@@ -1,5 +1,4 @@
 import { AppLayout } from "@/components/AppLayout";
-import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { VerdictBadge } from "@/components/StatusBadge";
 import { Bot } from "lucide-react";
@@ -17,53 +16,112 @@ const Agents = () => {
   const [agents, setAgents] = useState(initialAgents);
 
   const toggleAgent = (id: number) => {
-    setAgents((prev) => prev.map((a) => a.id === id ? { ...a, enabled: !a.enabled } : a));
+    setAgents((prev) =>
+      prev.map((a) =>
+        a.id === id ? { ...a, enabled: !a.enabled } : a
+      )
+    );
   };
 
   return (
     <AppLayout>
-      <div className="space-y-6">
-        <div className="flex items-end justify-between">
+      <div className="space-y-10">
+
+        {/* HEADER */}
+        <div className="flex items-end justify-between border-b border-black pb-4">
           <div>
-            <h1 className="text-xl font-semibold tracking-tight">Safety Agents</h1>
-            <p className="text-sm text-muted-foreground">Configure and monitor detection agents</p>
+            <h1 className="text-2xl font-semibold tracking-tight uppercase">
+              Agent Control Layer
+            </h1>
+            <p className="font-mono text-xs text-black/60 mt-1">
+              &gt; ENABLE / DISABLE SIGNAL PROCESSING AGENTS
+            </p>
           </div>
-          <span className="text-[11px] font-mono text-muted-foreground">{agents.filter(a => a.enabled).length} active</span>
+
+          <span className="font-mono text-xs border border-black px-2 py-1">
+            ACTIVE: {agents.filter(a => a.enabled).length}
+          </span>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        {/* AGENT GRID */}
+        <div className="grid grid-cols-2 gap-6">
+
           {agents.map((agent) => (
-            <Card key={agent.id} className={`${!agent.enabled ? "opacity-40" : ""} transition-all hover:shadow-md`}>
-              <CardContent className="py-5">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-lg bg-secondary flex items-center justify-center">
-                      <Bot className="h-4 w-4 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-sm">{agent.name}</h3>
-                      <p className="text-[11px] text-muted-foreground leading-relaxed">{agent.role}</p>
-                    </div>
+            <div
+              key={agent.id}
+              className={`
+                brutal-border brutal-shadow p-5 bg-white
+                transition-all
+                ${agent.enabled ? "" : "opacity-40"}
+              `}
+            >
+              {/* TOP */}
+              <div className="flex items-start justify-between mb-4">
+
+                <div className="flex items-start gap-3">
+
+                  {/* NODE ICON */}
+                  <div className={`
+                    w-9 h-9 flex items-center justify-center border border-black
+                    ${agent.enabled ? "node-active" : ""}
+                  `}>
+                    <Bot className="w-4 h-4" />
                   </div>
-                  <Switch checked={agent.enabled} onCheckedChange={() => toggleAgent(agent.id)} />
+
+                  <div>
+                    <h3 className="font-semibold text-sm uppercase tracking-tight">
+                      {agent.name}
+                    </h3>
+                    <p className="font-mono text-[11px] text-black/60 leading-relaxed">
+                      {agent.role}
+                    </p>
+                  </div>
                 </div>
-                <div className="grid grid-cols-3 gap-4 pt-3 border-t">
-                  <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-0.5">Accuracy</p>
-                    <p className="font-mono font-semibold text-sm">{agent.accuracy}%</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-0.5">Latency</p>
-                    <p className="font-mono font-semibold text-sm">{agent.latency}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-0.5">Last Signal</p>
-                    <VerdictBadge verdict={agent.lastSignal} />
-                  </div>
+
+                {/* CONTROL */}
+                <Switch
+                  checked={agent.enabled}
+                  onCheckedChange={() => toggleAgent(agent.id)}
+                />
+              </div>
+
+              {/* METRICS */}
+              <div className="grid grid-cols-3 gap-4 border-t border-black pt-3">
+
+                <div>
+                  <p className="font-mono text-[10px] uppercase text-black/50 mb-1">
+                    Accuracy
+                  </p>
+                  <p className="font-mono text-sm font-semibold">
+                    {agent.accuracy}%
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
+
+                <div>
+                  <p className="font-mono text-[10px] uppercase text-black/50 mb-1">
+                    Latency
+                  </p>
+                  <p className="font-mono text-sm font-semibold">
+                    {agent.latency}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="font-mono text-[10px] uppercase text-black/50 mb-1">
+                    Signal
+                  </p>
+                  <VerdictBadge verdict={agent.lastSignal} />
+                </div>
+              </div>
+
+              {/* SYSTEM FOOTER */}
+              <div className="mt-4 pt-3 border-t border-black/20 flex justify-between font-mono text-[10px] text-black/50">
+                <span>ID: AGT-{agent.id.toString().padStart(3, "0")}</span>
+                <span>{agent.enabled ? "ONLINE" : "OFFLINE"}</span>
+              </div>
+            </div>
           ))}
+
         </div>
       </div>
     </AppLayout>
