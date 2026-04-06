@@ -21,7 +21,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/"
+          <Route path="/x"
             element={
               <iframe
                 src="/landingpage.html"
@@ -29,7 +29,7 @@ const App = () => (
               />
             }
           />          
-          <Route path="/dashboard" element={<Index />} />
+          <Route path="/" element={<Index />} />
           <Route path="/monitor" element={<LiveMonitor />} />
           <Route path="/audit" element={<AuditLogs />} />
           <Route path="/violations" element={<Violations />} />
