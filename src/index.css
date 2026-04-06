@@ -61,6 +61,30 @@
 [data-state="unchecked"] > span {
   background: black !important;
 }
+
+/* SLIDER BASE */
+.slider-track {
+  background: rgba(0,0,0,0.2);
+  height: 6px;
+}
+
+/* COLORS */
+.slider-red [data-radix-slider-range] {
+  background: #C2185B;
+}
+
+.slider-yellow [data-radix-slider-range] {
+  background: #F59E0B;
+}
+
+.slider-green [data-radix-slider-range] {
+  background: #10B981;
+}
+
+/* THUMB */
+[data-radix-slider-thumb] {
+  border: 2px solid black;
+}
   
   @layer utilities {
   /* ===== BRUTAL UI ===== */
