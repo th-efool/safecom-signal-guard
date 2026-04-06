@@ -11,7 +11,7 @@ import Agents from "./pages/Agents.tsx";
 import Policies from "./pages/Policies.tsx";
 import SettingsPage from "./pages/Settings.tsx";
 import NotFound from "./pages/NotFound.tsx";
-
+import { BrowserRouter } from "react-router-dom";
 const queryClient = new QueryClient();
 
 const App = () => (
