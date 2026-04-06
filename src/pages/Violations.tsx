@@ -256,11 +256,12 @@ const Violations = () => {
           })}
         </div>
 
-        {/* POP PANEL */}
+        {/* POP PANEL MODAL */}
         <AnimatePresence>
-          {active && (
+        {active &&
+          createPortal(
             <motion.div
-              className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-[2px] flex items-center justify-center"
+              className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-sm flex items-center justify-center"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -274,12 +275,12 @@ const Violations = () => {
                 className="bg-white border-2 border-black p-6 w-[460px] shadow-[8px_8px_0px_black] relative"
               >
                 <div className="absolute top-0 left-0 w-full h-[3px] bg-[#C2185B]" />
-
+      
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="font-semibold">
                     {active.reference_id} — Analysis
                   </h2>
-
+      
                   <button
                     onClick={() => setActive(null)}
                     className="border border-black px-2 text-xs"
@@ -287,17 +288,17 @@ const Violations = () => {
                     X
                   </button>
                 </div>
-
+      
                 {/* SCORE */}
                 <div className="mb-4">
                   <div className="text-xs font-mono mb-1">
                     THREAT SCORE
                   </div>
-
+      
                   <div className="text-3xl font-mono">
                     {active.threat_level.toFixed(1)} / 10
                   </div>
-
+      
                   <div className="h-2 bg-black/10 mt-2">
                     <div
                       className="h-full"
@@ -307,12 +308,12 @@ const Violations = () => {
                       }}
                     />
                   </div>
-
+      
                   <div className="text-xs font-mono mt-2 text-black/60">
                     Confidence: {active.confidence}%
                   </div>
                 </div>
-
+      
                 {/* ACTION */}
                 <div className="mb-4">
                   <div className="text-xs font-mono mb-1">
@@ -322,7 +323,7 @@ const Violations = () => {
                     {active.recommended_action}
                   </div>
                 </div>
-
+      
                 {/* META */}
                 <div className="text-xs font-mono border-t pt-3 text-black/60 space-y-1">
                   <div className="flex justify-between">
@@ -338,11 +339,12 @@ const Violations = () => {
                     <span>{active.storage}</span>
                   </div>
                 </div>
-
+      
               </motion.div>
-            </motion.div>
+            </motion.div>,
+            document.body
           )}
-        </AnimatePresence>
+      </AnimatePresence>
 
       </div>
     </AppLayout>
