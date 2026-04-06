@@ -2,90 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 @layer base {
   :root {
-    --background: 0 0% 98.5%;
-    --foreground: 240 6% 10%;
+    /* CORE SYSTEM COLORS */
+    --bg: 0 0% 100%;
+    --fg: 0 0% 0%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 240 6% 10%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 6% 10%;
-
-    --primary: 348 83% 47%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 348 20% 96%;
-    --secondary-foreground: 240 6% 10%;
-
-    --muted: 240 5% 94%;
-    --muted-foreground: 240 4% 46%;
-
-    --accent: 348 30% 95%;
-    --accent-foreground: 348 83% 40%;
-
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 240 6% 90%;
-    --input: 240 6% 90%;
-    --ring: 348 83% 47%;
-
-    --radius: 0.5rem;
-
-    /* Status tokens */
+    /* SIGNAL COLORS */
+    --accent: 348 83% 47%; /* #C2185B */
     --safe: 152 60% 36%;
-    --safe-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
     --danger: 0 72% 51%;
-    --danger-foreground: 0 0% 100%;
 
-    /* Sidebar — deep crimson-charcoal */
-    --sidebar-background: 348 30% 8%;
-    --sidebar-foreground: 348 15% 60%;
-    --sidebar-primary: 348 83% 56%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 348 25% 13%;
-    --sidebar-accent-foreground: 348 20% 90%;
-    --sidebar-border: 348 20% 16%;
-    --sidebar-ring: 348 83% 56%;
+    /* SYSTEM TOKENS */
+    --border: 0 0% 0%;
+    --radius: 0rem; /* ❗ kill softness */
+
+    /* UI SURFACES */
+    --card: 0 0% 100%;
+    --popover: 0 0% 100%;
+
+    /* TEXT */
+    --foreground: var(--fg);
+    --card-foreground: var(--fg);
+
+    /* SIDEBAR (keep but sharpen) */
+    --sidebar-background: 0 0% 5%;
+    --sidebar-foreground: 0 0% 70%;
+    --sidebar-primary: 348 83% 47%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-border: 0 0% 20%;
   }
-}
 
-@layer base {
   * {
-    @apply border-border;
+    @apply border-black; /* ❗ force brutal borders */
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    background: hsl(var(--bg));
+    color: hsl(var(--fg));
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
-}
 
-@layer utilities {
-  .status-safe {
-    @apply bg-safe text-safe-foreground;
-  }
-  .status-warning {
-    @apply bg-warning text-warning-foreground;
-  }
-  .status-danger {
-    @apply bg-danger text-danger-foreground;
-  }
-  .status-safe-subtle {
-    background-color: hsl(var(--safe) / 0.08);
-    color: hsl(var(--safe));
-  }
-  .status-warning-subtle {
-    background-color: hsl(var(--warning) / 0.08);
-    color: hsl(var(--warning));
-  }
-  .status-danger-subtle {
-    background-color: hsl(var(--danger) / 0.08);
-    color: hsl(var(--danger));
+  /* MONO SYSTEM LAYER */
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
   }
 }
