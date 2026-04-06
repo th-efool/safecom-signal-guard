@@ -167,149 +167,142 @@ const violations: Violation[] = [
   },
 ];
 
+
 const Violations = () => {
+  const [openId, setOpenId] = useState<string | null>(null);
+
   return (
     <AppLayout>
-      <div className="space-y-4">
+      <div className="space-y-8">
 
         {/* HEADER */}
-        <div>
-          <h1 className="text-xl font-semibold">Violations</h1>
-          <p className="text-sm text-muted-foreground">
-            Reference-based safety events · No raw message storage
+        <div className="border-b border-black pb-4">
+          <h1 className="text-2xl font-semibold uppercase">
+            Violation Trace Log
+          </h1>
+          <p className="font-mono text-xs text-black/60 mt-1">
+            &gt; REFERENCE-ONLY EVENTS · ZERO STORAGE MODE
           </p>
         </div>
 
-        {/* LIST */}
-        <div className="space-y-3">
-          {violations.map((v) => (
-            <Dialog key={v.reference_id}>
-              <DialogTrigger asChild>
-                <Card className="cursor-pointer hover:border-primary/40 transition-all">
+        {/* LOG STREAM */}
+        <div className="brutal-border brutal-shadow">
 
-                  <CardContent className="py-4">
+          {/* HEADER BAR */}
+          <div className="border-b border-black p-3 flex justify-between font-mono text-xs uppercase">
+            <span>Live Incident Stream</span>
+            <span className="animate-blink">_</span>
+          </div>
 
-                    <div className="flex items-center justify-between">
+          {/* LOGS */}
+          <div className="divide-y divide-black/10">
 
-                      {/* LEFT */}
-                      <div className="flex items-center gap-4">
-                        <span className="font-mono text-xs text-muted-foreground">
-                          {v.reference_id}
-                        </span>
+            {violations.map((v) => {
+              const isOpen = openId === v.reference_id;
 
-                        <span className={`text-xs px-2 py-0.5 rounded ${
-                          v.risk_status === "Dangerous" ? "bg-danger/20 text-danger" :
-                          v.risk_status === "Suspicious" ? "bg-warning/20 text-warning" :
-                          "bg-safe/20 text-safe"
-                        }`}>
-                          {v.risk_status}
-                        </span>
+              return (
+                <div
+                  key={v.reference_id}
+                  onClick={() =>
+                    setOpenId(isOpen ? null : v.reference_id)
+                  }
+                  className="p-3 cursor-pointer hover:bg-black/5 transition-colors"
+                >
 
-                        <span className="text-sm font-medium">
-                          {v.intent_classification}
-                        </span>
-                      </div>
+                  {/* TOP ROW */}
+                  <div className="flex justify-between items-center">
 
-                      {/* RIGHT */}
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-mono">
-                          {(v.threat_level).toFixed(1)}/10
-                        </span>
-                        <ActionBadge action={
-                          v.risk_status === "Dangerous" ? "ESCALATE" :
-                          v.risk_status === "Suspicious" ? "FLAG" : "ALLOW"
-                        } />
-                        <span className="text-xs text-muted-foreground">
-                          {v.timestamp}
-                        </span>
-                      </div>
-                    </div>
+                    {/* LEFT */}
+                    <div className="flex items-center gap-4">
 
-                    {/* PROGRESS BAR */}
-                    <div className="mt-3 h-1.5 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className={`h-full ${
-                          v.threat_level > 7 ? "bg-danger" :
-                          v.threat_level > 4 ? "bg-warning" : "bg-safe"
-                        }`}
-                        style={{ width: `${v.threat_level * 10}%` }}
-                      />
-                    </div>
-
-                  </CardContent>
-                </Card>
-              </DialogTrigger>
-
-              {/* MODAL */}
-              <DialogContent className="max-w-lg">
-                <DialogHeader>
-                  <DialogTitle>
-                    {v.reference_id} — System Analysis
-                  </DialogTitle>
-                </DialogHeader>
-
-                <div className="space-y-4">
-
-                  {/* THREAT */}
-                  <div className="space-y-2">
-                    <p className="text-xs text-muted-foreground">Threat Score</p>
-
-                    <div className="flex items-end gap-2">
-                      <span className="text-3xl font-bold font-mono">
-                        {v.threat_level.toFixed(1)}
+                      <span className="font-mono text-xs text-black/50">
+                        [{v.timestamp.split(" ")[1]}]
                       </span>
-                      <span className="text-sm text-muted-foreground">/10</span>
+
+                      <span className="font-mono text-xs">
+                        {v.reference_id}
+                      </span>
+
+                      <span className={`
+                        font-mono text-[10px] px-2 py-0.5 border
+                        ${v.risk_status === "Dangerous" ? "border-black bg-black text-white" :
+                          v.risk_status === "Suspicious" ? "border-black bg-black/10" :
+                          "border-black"}
+                      `}>
+                        {v.risk_status.toUpperCase()}
+                      </span>
+
+                      <span className="text-sm">
+                        {v.intent_classification}
+                      </span>
                     </div>
 
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className={`h-full ${
-                          v.threat_level > 7 ? "bg-danger" :
-                          v.threat_level > 4 ? "bg-warning" : "bg-safe"
-                        }`}
-                        style={{ width: `${v.threat_level * 10}%` }}
-                      />
-                    </div>
+                    {/* RIGHT */}
+                    <div className="flex items-center gap-4">
 
-                    <p className="text-xs text-muted-foreground">
-                      Confidence: <span className="font-mono text-foreground">{v.confidence}%</span>
-                    </p>
-                  </div>
+                      <span className="font-mono text-xs">
+                        {v.threat_level.toFixed(1)}/10
+                      </span>
 
-                  {/* ACTION */}
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Recommended Action</p>
-                    <p className="text-sm font-medium">{v.recommended_action}</p>
-                  </div>
+                      <ActionBadge action={
+                        v.risk_status === "Dangerous" ? "ESCALATE" :
+                        v.risk_status === "Suspicious" ? "FLAG" : "ALLOW"
+                      } />
 
-                  {/* TRACE */}
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Execution Trace</p>
-                    <div className="text-xs font-mono bg-muted p-2 rounded">
-                      {v.trace[0]}
-                    </div>
-                  </div>
-
-                  {/* META */}
-                  <div className="text-xs font-mono text-muted-foreground space-y-1 pt-2 border-t">
-                    <div className="flex justify-between">
-                      <span>Latency</span>
-                      <span className="text-foreground">{v.latency_ms}ms</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Privacy Mode</span>
-                      <span className="text-foreground">{v.privacy_mode}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Storage</span>
-                      <span className="text-foreground">{v.storage}</span>
                     </div>
                   </div>
 
+                  {/* THREAT BAR */}
+                  <div className="mt-2 h-[2px] bg-black/10">
+                    <div
+                      className={`
+                        h-full
+                        ${v.threat_level > 7 ? "bg-black" :
+                          v.threat_level > 4 ? "bg-black/60" :
+                          "bg-black/30"}
+                      `}
+                      style={{ width: `${v.threat_level * 10}%` }}
+                    />
+                  </div>
+
+                  {/* EXPANDED TRACE */}
+                  {isOpen && (
+                    <div className="mt-4 pt-3 border-t border-black/20 space-y-3">
+
+                      {/* TRACE */}
+                      <div>
+                        <p className="font-mono text-[10px] text-black/50 mb-1">
+                          TRACE
+                        </p>
+                        <div className="font-mono text-xs">
+                          {v.trace.join(" → ")}
+                        </div>
+                      </div>
+
+                      {/* ACTION */}
+                      <div>
+                        <p className="font-mono text-[10px] text-black/50 mb-1">
+                          ACTION
+                        </p>
+                        <p className="text-sm">
+                          {v.recommended_action}
+                        </p>
+                      </div>
+
+                      {/* META */}
+                      <div className="grid grid-cols-3 text-[10px] font-mono text-black/60 pt-2 border-t border-black/10">
+                        <span>LAT: {v.latency_ms}ms</span>
+                        <span>PRIV: {v.privacy_mode}</span>
+                        <span>STORE: {v.storage}</span>
+                      </div>
+
+                    </div>
+                  )}
                 </div>
-              </DialogContent>
-            </Dialog>
-          ))}
+              );
+            })}
+
+          </div>
         </div>
       </div>
     </AppLayout>
