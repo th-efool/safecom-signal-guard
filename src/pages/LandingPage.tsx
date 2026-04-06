@@ -1,4 +1,7 @@
-import { useEffect, useState } from "react";
+"use client";
+import { useEffect, useRef, useState } from "react";
+
+/* ---------------- TYPES ---------------- */
 
 type SystemState = {
   systemLoad: "LOW" | "MEDIUM" | "HIGH";
@@ -14,16 +17,25 @@ type Payload = {
   type: "ALLOW" | "WARN" | "FLAG" | "ESCALATE";
   score: number;
   conf: number;
+  t: string;
+  c: string;
+  r: string;
   col: string;
+  note?: string;
 };
+
+/* ---------------- MOCK DATA ---------------- */
 
 const mockPayloads: Payload[] = [
   {
     text: "I know where you live.",
-    intent: "Threat",
+    intent: "Intimidation",
     type: "ESCALATE",
     score: 9.4,
     conf: 0.94,
+    t: "DANGEROUS",
+    c: "SUSPICIOUS",
+    r: "DANGEROUS",
     col: "#C2185B",
   },
   {
@@ -32,36 +44,47 @@ const mockPayloads: Payload[] = [
     type: "WARN",
     score: 5.2,
     conf: 0.79,
+    t: "SUSPICIOUS",
+    c: "SUSPICIOUS",
+    r: "SAFE",
     col: "#F59E0B",
   },
   {
-    text: "Let's meet tomorrow",
+    text: "Let's meet tomorrow.",
     intent: "Safe",
     type: "ALLOW",
     score: 1.2,
     conf: 0.99,
+    t: "SAFE",
+    c: "SAFE",
+    r: "SAFE",
     col: "#10B981",
   },
 ];
+
+/* ---------------- MAIN COMPONENT ---------------- */
 
 export default function LandingPage() {
   const [state, setState] = useState<SystemState>({
     systemLoad: "LOW",
     signalDensity: 1,
-    latency: 800,
+    latency: 900,
     anomaly: false,
     systemView: false,
   });
 
-  const [currentPayload, setCurrentPayload] = useState<Payload | null>(null);
   const [phase, setPhase] = useState<
-    "idle" | "ingest" | "analyze" | "decision"
+    "idle" | "ingest" | "agents" | "decision"
   >("idle");
 
+  const [payload, setPayload] = useState<Payload | null>(null);
+  const [logs, setLogs] = useState<any[]>([]);
+
   /* ---------------- SYSTEM LOOP ---------------- */
+
   useEffect(() => {
     const interval = setInterval(() => {
-      const latency = Math.floor(Math.random() * 2000) + 600;
+      const latency = rand(600, 2500);
 
       const systemLoad =
         latency < 1000 ? "LOW" : latency < 1800 ? "MEDIUM" : "HIGH";
@@ -75,36 +98,37 @@ export default function LandingPage() {
         systemLoad,
         signalDensity,
       }));
+
+      if (Math.random() < 0.05) triggerAnomaly();
     }, 3000);
 
     return () => clearInterval(interval);
   }, []);
 
   /* ---------------- PIPELINE LOOP ---------------- */
+
   useEffect(() => {
     let cancelled = false;
 
     async function run() {
       while (!cancelled) {
-        const payload =
-          mockPayloads[Math.floor(Math.random() * mockPayloads.length)];
+        const p = pick(mockPayloads);
+        setPayload(p);
 
-        setCurrentPayload(payload);
-
-        // INGEST
         setPhase("ingest");
         await delay(state.latency * 0.3);
 
-        // ANALYZE
-        setPhase("analyze");
+        setPhase("agents");
         await delay(state.latency * 0.4);
 
-        // DECISION
         setPhase("decision");
+
+        addLog(p);
+
         await delay(1500);
 
         setPhase("idle");
-        await delay(800);
+        await delay(rand(600, 1200));
       }
     }
 
@@ -114,21 +138,45 @@ export default function LandingPage() {
     };
   }, [state.latency]);
 
+  /* ---------------- FUNCTIONS ---------------- */
+
+  function triggerAnomaly() {
+    setState((s) => ({ ...s, anomaly: true }));
+
+    setTimeout(() => {
+      setState((s) => ({ ...s, anomaly: false }));
+    }, 2500);
+  }
+
+  function addLog(p: Payload) {
+    const entry = {
+      id: Math.random().toString(36).slice(2),
+      payload: p,
+      time: new Date().toLocaleTimeString(),
+    };
+
+    setLogs((prev) => [entry, ...prev.slice(0, 4)]);
+  }
+
   /* ---------------- UI ---------------- */
 
   return (
-    <div className="min-h-screen bg-white text-black relative overflow-hidden">
+    <div
+      className={`min-h-screen bg-white text-black ${
+        state.anomaly ? "animate-pulse" : ""
+      }`}
+    >
       <GlobalSignals density={state.signalDensity} />
 
       {/* NAV */}
-      <nav className="fixed top-0 w-full h-14 border-b flex items-center justify-between px-6 bg-white/80 backdrop-blur z-50">
+      <nav className="fixed top-0 w-full h-14 border-b flex justify-between px-6 items-center bg-white/80 backdrop-blur z-50">
         <div className="flex gap-4 items-center">
           <div
-            className={`w-3 h-3 rounded-full ${
+            className={`w-3 h-3 ${
               state.anomaly ? "bg-pink-600" : "bg-green-500"
             } animate-pulse`}
           />
-          <span className="font-semibold uppercase">SafeCom</span>
+          <span className="uppercase font-semibold">SafeCom</span>
           <span className="font-mono text-xs opacity-60">
             LOAD: {state.systemLoad} | LAT: {state.latency}ms
           </span>
@@ -145,42 +193,44 @@ export default function LandingPage() {
       </nav>
 
       {/* HERO */}
-      <section className="pt-20 px-8 min-h-screen flex flex-col justify-center">
-        <h1 className="text-6xl font-bold tracking-tight leading-tight uppercase">
+      <section className="pt-24 px-10 min-h-screen flex flex-col justify-center">
+        <h1 className="text-7xl font-bold tracking-tight uppercase">
           Harm doesn't wait.
           <br />
           <span className="text-[#C2185B]">Detection</span> shouldn't either.
         </h1>
 
-        <div className="mt-10 border p-4 font-mono text-xs w-[400px]">
-          <div className="mb-2 opacity-60">PIPELINE STATUS</div>
-
-          {phase === "ingest" && <span>INGESTING PAYLOAD...</span>}
-          {phase === "analyze" && <span>RUNNING AGENTS...</span>}
-          {phase === "decision" && <span>FINALIZING DECISION...</span>}
-          {phase === "idle" && <span>IDLE</span>}
-        </div>
+        <SystemStatus phase={phase} />
       </section>
 
       {/* PIPELINE */}
-      <section className="px-8 py-20 grid grid-cols-4 gap-6">
-        <PipelineBlock title="INGEST" active={phase === "ingest"}>
-          {state.systemView
-            ? "[0x9A, 0xFF, 0x12]"
-            : currentPayload?.text || "..."}
-        </PipelineBlock>
+      <section className="grid grid-cols-4 gap-6 px-10 py-20">
+        <Block title="INGEST" active={phase === "ingest"}>
+          {state.systemView ? "[0x9A, 0xFF]" : payload?.text}
+        </Block>
 
-        <PipelineBlock title="AGENTS" active={phase === "analyze"}>
-          {phase === "analyze" ? "Analyzing..." : "---"}
-        </PipelineBlock>
+        <Block title="AGENTS" active={phase === "agents"}>
+          {phase === "agents" ? "Analyzing..." : "---"}
+        </Block>
 
-        <PipelineBlock title="DECISION" active={phase === "decision"}>
-          {currentPayload?.type || "---"}
-        </PipelineBlock>
+        <Block title="DECISION" active={phase === "decision"}>
+          {payload?.type}
+        </Block>
 
-        <PipelineBlock title="OUTPUT">
-          {currentPayload?.intent || "---"}
-        </PipelineBlock>
+        <Block title="OUTPUT">{payload?.intent}</Block>
+      </section>
+
+      {/* TELEMETRY */}
+      <section className="px-10 pb-20">
+        <h2 className="text-xl font-bold mb-4 uppercase">
+          Live Telemetry
+        </h2>
+
+        <div className="border p-4 font-mono text-xs space-y-3">
+          {logs.map((log) => (
+            <TelemetryItem key={log.id} log={log} />
+          ))}
+        </div>
       </section>
     </div>
   );
@@ -188,7 +238,7 @@ export default function LandingPage() {
 
 /* ---------------- COMPONENTS ---------------- */
 
-function PipelineBlock({
+function Block({
   title,
   active,
   children,
@@ -203,8 +253,34 @@ function PipelineBlock({
         active ? "shadow-[4px_4px_0_#C2185B]" : ""
       }`}
     >
-      <div className="text-xs font-mono mb-2">{title}</div>
-      <div className="font-mono text-sm">{children}</div>
+      <div className="font-mono text-xs mb-2">{title}</div>
+      <div className="font-mono">{children}</div>
+    </div>
+  );
+}
+
+function SystemStatus({ phase }: { phase: string }) {
+  return (
+    <div className="mt-8 border p-4 font-mono text-xs w-[400px]">
+      {phase === "ingest" && "INGESTING"}
+      {phase === "agents" && "RUNNING AGENTS"}
+      {phase === "decision" && "FINALIZING"}
+      {phase === "idle" && "IDLE"}
+    </div>
+  );
+}
+
+function TelemetryItem({ log }: any) {
+  return (
+    <div className="border-b pb-2">
+      <div className="flex justify-between">
+        <span>{log.time}</span>
+        <span>{log.payload.type}</span>
+      </div>
+      <div>{log.payload.intent}</div>
+      <div className="opacity-60">
+        Conf: {Math.round(log.payload.conf * 100)}%
+      </div>
     </div>
   );
 }
@@ -230,4 +306,12 @@ function GlobalSignals({ density }: { density: number }) {
 
 function delay(ms: number) {
   return new Promise((res) => setTimeout(res, ms));
+}
+
+function rand(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function pick<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
 }
