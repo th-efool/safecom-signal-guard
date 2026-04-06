@@ -53,6 +53,15 @@
     font-family: 'JetBrains Mono', monospace;
   }
 
+  /* FIX SWITCH VISIBILITY */
+[data-state="checked"] > span {
+  background: white !important;
+}
+
+[data-state="unchecked"] > span {
+  background: black !important;
+}
+  
   @layer utilities {
   /* ===== BRUTAL UI ===== */
   .brutal-border {
