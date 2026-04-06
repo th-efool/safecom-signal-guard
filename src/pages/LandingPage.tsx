@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 
-/* ---------------- TYPES ---------------- */
+/* ---------------- STATE ---------------- */
 
 type SystemState = {
   systemLoad: "LOW" | "MEDIUM" | "HIGH";
@@ -12,6 +12,7 @@ type SystemState = {
 };
 
 type Payload = {
+  id: string;
   text: string;
   intent: string;
   type: "ALLOW" | "WARN" | "FLAG" | "ESCALATE";
@@ -24,9 +25,9 @@ type Payload = {
   note?: string;
 };
 
-/* ---------------- MOCK DATA ---------------- */
+/* ---------------- MOCK ---------------- */
 
-const mockPayloads: Payload[] = [
+const mock = [
   {
     text: "I know where you live.",
     intent: "Intimidation",
@@ -38,182 +39,164 @@ const mockPayloads: Payload[] = [
     r: "DANGEROUS",
     col: "#C2185B",
   },
-  {
-    text: "You are an idiot.",
-    intent: "Harassment",
-    type: "WARN",
-    score: 5.2,
-    conf: 0.79,
-    t: "SUSPICIOUS",
-    c: "SUSPICIOUS",
-    r: "SAFE",
-    col: "#F59E0B",
-  },
-  {
-    text: "Let's meet tomorrow.",
-    intent: "Safe",
-    type: "ALLOW",
-    score: 1.2,
-    conf: 0.99,
-    t: "SAFE",
-    c: "SAFE",
-    r: "SAFE",
-    col: "#10B981",
-  },
 ];
 
-/* ---------------- MAIN COMPONENT ---------------- */
+/* ---------------- COMPONENT ---------------- */
 
 export default function LandingPage() {
-  const [state, setState] = useState<SystemState>({
+  const [sys, setSys] = useState<SystemState>({
     systemLoad: "LOW",
     signalDensity: 1,
-    latency: 900,
+    latency: 800,
     anomaly: false,
     systemView: false,
   });
 
+  const [payload, setPayload] = useState<Payload | null>(null);
   const [phase, setPhase] = useState<
     "idle" | "ingest" | "agents" | "decision"
   >("idle");
 
-  const [payload, setPayload] = useState<Payload | null>(null);
-  const [logs, setLogs] = useState<any[]>([]);
+  const [logs, setLogs] = useState<Payload[]>([]);
+
+  /* ---------------- SIGNAL LAYER (REF = PERF) ---------------- */
+  const signalRef = useRef<HTMLDivElement>(null);
 
   /* ---------------- SYSTEM LOOP ---------------- */
-
   useEffect(() => {
-    const interval = setInterval(() => {
+    const id = setInterval(() => {
       const latency = rand(600, 2500);
 
-      const systemLoad =
+      const load =
         latency < 1000 ? "LOW" : latency < 1800 ? "MEDIUM" : "HIGH";
 
-      const signalDensity =
-        systemLoad === "LOW" ? 1 : systemLoad === "MEDIUM" ? 3 : 5;
+      const density = load === "LOW" ? 1 : load === "MEDIUM" ? 3 : 5;
 
-      setState((prev) => ({
-        ...prev,
+      setSys((s) => ({
+        ...s,
         latency,
-        systemLoad,
-        signalDensity,
+        systemLoad: load,
+        signalDensity: density,
       }));
 
-      if (Math.random() < 0.05) triggerAnomaly();
+      spawnSignals(signalRef.current, density);
     }, 3000);
 
-    return () => clearInterval(interval);
+    return () => clearInterval(id);
   }, []);
 
-  /* ---------------- PIPELINE LOOP ---------------- */
-
+  /* ---------------- PIPELINE (REAL PORT) ---------------- */
   useEffect(() => {
-    let cancelled = false;
+    let cancel = false;
 
-    async function run() {
-      while (!cancelled) {
-        const p = pick(mockPayloads);
+    async function loop() {
+      while (!cancel) {
+        const base = mock[0];
+        const p: Payload = {
+          ...base,
+          id: genId(),
+        };
+
         setPayload(p);
 
+        /* INGEST */
         setPhase("ingest");
-        await delay(state.latency * 0.3);
+        await delay(sys.latency * 0.3);
 
+        /* ZERO STORAGE EFFECT */
+        setPayload((prev) =>
+          prev ? { ...prev, text: scramble(prev.text) } : prev
+        );
+
+        /* AGENTS */
         setPhase("agents");
-        await delay(state.latency * 0.4);
+        await delay(sys.latency * 0.5);
 
+        /* DECISION */
         setPhase("decision");
 
-        addLog(p);
+        setLogs((l) => [p, ...l.slice(0, 4)]);
 
         await delay(1500);
 
         setPhase("idle");
-        await delay(rand(600, 1200));
+        await delay(rand(500, 1200));
       }
     }
 
-    run();
+    loop();
     return () => {
-      cancelled = true;
+      cancel = true;
     };
-  }, [state.latency]);
-
-  /* ---------------- FUNCTIONS ---------------- */
-
-  function triggerAnomaly() {
-    setState((s) => ({ ...s, anomaly: true }));
-
-    setTimeout(() => {
-      setState((s) => ({ ...s, anomaly: false }));
-    }, 2500);
-  }
-
-  function addLog(p: Payload) {
-    const entry = {
-      id: Math.random().toString(36).slice(2),
-      payload: p,
-      time: new Date().toLocaleTimeString(),
-    };
-
-    setLogs((prev) => [entry, ...prev.slice(0, 4)]);
-  }
+  }, [sys.latency]);
 
   /* ---------------- UI ---------------- */
 
   return (
-    <div
-      className={`min-h-screen bg-white text-black ${
-        state.anomaly ? "animate-pulse" : ""
-      }`}
-    >
-      <GlobalSignals density={state.signalDensity} />
+    <div className="min-h-screen bg-white text-black relative">
+      {/* SIGNAL LAYER */}
+      <div
+        ref={signalRef}
+        className="fixed inset-0 pointer-events-none opacity-40"
+      />
 
       {/* NAV */}
       <nav className="fixed top-0 w-full h-14 border-b flex justify-between px-6 items-center bg-white/80 backdrop-blur z-50">
         <div className="flex gap-4 items-center">
           <div
             className={`w-3 h-3 ${
-              state.anomaly ? "bg-pink-600" : "bg-green-500"
+              sys.anomaly ? "bg-pink-600" : "bg-green-500"
             } animate-pulse`}
           />
-          <span className="uppercase font-semibold">SafeCom</span>
-          <span className="font-mono text-xs opacity-60">
-            LOAD: {state.systemLoad} | LAT: {state.latency}ms
+          <span>SafeCom</span>
+          <span className="font-mono text-xs">
+            LOAD: {sys.systemLoad} | LAT: {sys.latency}
           </span>
         </div>
 
         <button
           onClick={() =>
-            setState((s) => ({ ...s, systemView: !s.systemView }))
+            setSys((s) => ({ ...s, systemView: !s.systemView }))
           }
-          className="border px-3 py-1 font-mono text-xs"
         >
-          {state.systemView ? "SYSTEM VIEW" : "USER VIEW"}
+          {sys.systemView ? "SYSTEM VIEW" : "USER VIEW"}
         </button>
       </nav>
 
       {/* HERO */}
-      <section className="pt-24 px-10 min-h-screen flex flex-col justify-center">
-        <h1 className="text-7xl font-bold tracking-tight uppercase">
+      <section className="pt-24 px-10">
+        <h1 className="text-7xl uppercase">
           Harm doesn't wait.
           <br />
           <span className="text-[#C2185B]">Detection</span> shouldn't either.
         </h1>
 
-        <SystemStatus phase={phase} />
+        {/* MEMORY BUFFER */}
+        <div className="border mt-6 p-3 font-mono text-xs w-[400px]">
+          <div className="flex justify-between">
+            <span>VOLATILE_MEMORY_BUFFER</span>
+            <span>
+              {phase === "ingest" ? "WRITING" : "FLUSHED"}
+            </span>
+          </div>
+
+          <div className="mt-2">
+            {payload?.text || "[AWAITING]"}
+          </div>
+        </div>
       </section>
 
       {/* PIPELINE */}
       <section className="grid grid-cols-4 gap-6 px-10 py-20">
-        <Block title="INGEST" active={phase === "ingest"}>
-          {state.systemView ? "[0x9A, 0xFF]" : payload?.text}
+        <Block active={phase === "ingest"} title="INGEST">
+          {payload?.text}
         </Block>
 
-        <Block title="AGENTS" active={phase === "agents"}>
-          {phase === "agents" ? "Analyzing..." : "---"}
+        <Block active={phase === "agents"} title="AGENTS">
+          {phase === "agents" ? payload?.t : "---"}
         </Block>
 
-        <Block title="DECISION" active={phase === "decision"}>
+        <Block active={phase === "decision"} title="ACTION">
           {payload?.type}
         </Block>
 
@@ -222,13 +205,18 @@ export default function LandingPage() {
 
       {/* TELEMETRY */}
       <section className="px-10 pb-20">
-        <h2 className="text-xl font-bold mb-4 uppercase">
-          Live Telemetry
-        </h2>
-
-        <div className="border p-4 font-mono text-xs space-y-3">
-          {logs.map((log) => (
-            <TelemetryItem key={log.id} log={log} />
+        <div className="border p-4 font-mono text-xs space-y-2">
+          {logs.map((l) => (
+            <div key={l.id} className="border-b pb-2">
+              <div className="flex justify-between">
+                <span>{l.id}</span>
+                <span>{l.type}</span>
+              </div>
+              <div>{l.intent}</div>
+              <div className="opacity-60">
+                Conf: {Math.round(l.conf * 100)}%
+              </div>
+            </div>
           ))}
         </div>
       </section>
@@ -236,7 +224,7 @@ export default function LandingPage() {
   );
 }
 
-/* ---------------- COMPONENTS ---------------- */
+/* ---------------- HELPERS ---------------- */
 
 function Block({
   title,
@@ -253,65 +241,41 @@ function Block({
         active ? "shadow-[4px_4px_0_#C2185B]" : ""
       }`}
     >
-      <div className="font-mono text-xs mb-2">{title}</div>
-      <div className="font-mono">{children}</div>
+      <div className="text-xs font-mono mb-2">{title}</div>
+      {children}
     </div>
   );
 }
 
-function SystemStatus({ phase }: { phase: string }) {
-  return (
-    <div className="mt-8 border p-4 font-mono text-xs w-[400px]">
-      {phase === "ingest" && "INGESTING"}
-      {phase === "agents" && "RUNNING AGENTS"}
-      {phase === "decision" && "FINALIZING"}
-      {phase === "idle" && "IDLE"}
-    </div>
-  );
+function spawnSignals(el: HTMLDivElement | null, density: number) {
+  if (!el) return;
+  el.innerHTML = "";
+
+  for (let i = 0; i < density * 2; i++) {
+    const div = document.createElement("div");
+    div.className =
+      "absolute h-[1px] w-[200px] bg-gradient-to-r from-transparent via-[#C2185B] to-transparent animate-[flow_3s_linear_infinite]";
+    div.style.top = `${Math.random() * 100}vh`;
+    div.style.left = `${Math.random() * 100}vw`;
+    el.appendChild(div);
+  }
 }
 
-function TelemetryItem({ log }: any) {
-  return (
-    <div className="border-b pb-2">
-      <div className="flex justify-between">
-        <span>{log.time}</span>
-        <span>{log.payload.type}</span>
-      </div>
-      <div>{log.payload.intent}</div>
-      <div className="opacity-60">
-        Conf: {Math.round(log.payload.conf * 100)}%
-      </div>
-    </div>
-  );
+function scramble(str: string) {
+  return str
+    .split("")
+    .map(() => (Math.random() > 0.5 ? "*" : "#"))
+    .join("");
 }
-
-function GlobalSignals({ density }: { density: number }) {
-  return (
-    <div className="fixed inset-0 pointer-events-none opacity-40">
-      {Array.from({ length: density * 2 }).map((_, i) => (
-        <div
-          key={i}
-          className="absolute h-[1px] w-[200px] bg-gradient-to-r from-transparent via-[#C2185B] to-transparent animate-[flow_3s_linear_infinite]"
-          style={{
-            top: `${Math.random() * 100}vh`,
-            left: `${Math.random() * 100}vw`,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-/* ---------------- UTILS ---------------- */
 
 function delay(ms: number) {
-  return new Promise((res) => setTimeout(res, ms));
+  return new Promise((r) => setTimeout(r, ms));
 }
 
 function rand(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function pick<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
+function genId() {
+  return "REQ-" + Math.random().toString(36).slice(2, 6).toUpperCase();
 }
