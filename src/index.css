@@ -39,7 +39,11 @@
   * {
     @apply border-black; /* ❗ force brutal borders */
   }
-
+  html, body, #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
   body {
     background: hsl(var(--bg));
     color: hsl(var(--fg));
