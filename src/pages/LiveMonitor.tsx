@@ -20,6 +20,8 @@ interface AnalysisResult {
   reasoning: string;
 }
 
+/* ---------------- SAME LOGIC (unchanged) ---------------- */
+
 const exampleMessages = [
   "I will find you and make you regret this",
   "Hey, can we reschedule the meeting to 3pm?",
@@ -70,6 +72,8 @@ function analyzeMessage(msg: string): AnalysisResult {
   };
 }
 
+/* ---------------- UI ---------------- */
+
 const LiveMonitor = () => {
   const [message, setMessage] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
@@ -109,7 +113,7 @@ const LiveMonitor = () => {
       },
     ];
 
-    steps.forEach((fn, i) => setTimeout(fn, i * 300));
+    steps.forEach((fn, i) => setTimeout(fn, i * 250));
   };
 
   return (
@@ -117,36 +121,36 @@ const LiveMonitor = () => {
       <div className="space-y-8">
 
         {/* HEADER */}
-        <div className="flex items-end justify-between border-b border-black pb-4">
+        <div className="flex items-end justify-between border-b border-neutral-200 pb-4">
           <div>
-            <h1 className="text-2xl font-semibold uppercase">
-              Live Monitor
-            </h1>
-            <p className="font-mono text-xs text-black/60 mt-1">
-              &gt; REAL-TIME SAFETY PIPELINE EXECUTION
+            <h1 className="text-xl font-semibold">Live Monitor</h1>
+            <p className="text-xs text-neutral-500 mt-1">
+              Real-time safety pipeline execution
             </p>
           </div>
 
-          <span className="font-mono text-xs border border-[#C2185B] text-[#C2185B] px-2 py-1">
-            {processing ? "PROCESSING" : "IDLE"}
+          <span className={`text-xs px-2 py-1 border rounded ${
+            processing
+              ? "text-yellow-600 border-yellow-300 bg-yellow-50"
+              : "text-neutral-600 border-neutral-300"
+          }`}>
+            {processing ? "Processing" : "Idle"}
           </span>
         </div>
 
-        {/* MAIN GRID */}
+        {/* GRID */}
         <div className="grid grid-cols-12 gap-6">
 
           {/* INPUT */}
-          <div className="col-span-3 brutal-border brutal-shadow p-4 flex flex-col">
+          <div className="col-span-3 bg-white border border-neutral-200 rounded-md p-4 flex flex-col">
 
-            <div className="font-mono text-[10px] mb-3 text-black/50">
-              INPUT PAYLOAD
-            </div>
+            <div className="text-xs text-neutral-500 mb-3">Input</div>
 
             <Textarea
               placeholder="Enter message..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="flex-1 resize-none font-mono text-sm border border-black"
+              className="flex-1 resize-none text-sm"
             />
 
             <div className="flex flex-wrap gap-2 mt-3">
@@ -154,7 +158,7 @@ const LiveMonitor = () => {
                 <button
                   key={i}
                   onClick={() => setMessage(ex)}
-                  className="text-[10px] px-2 py-1 border border-black font-mono hover:bg-black hover:text-white"
+                  className="text-xs px-2 py-1 border border-neutral-300 rounded hover:bg-neutral-100"
                 >
                   {ex}
                 </button>
@@ -164,9 +168,9 @@ const LiveMonitor = () => {
             <button
               onClick={handleAnalyze}
               disabled={processing || !message.trim()}
-              className="mt-4 border border-black px-3 py-2 font-mono text-xs bg-black text-white hover:bg-white hover:text-black"
+              className="mt-4 bg-black text-white text-sm py-2 rounded hover:bg-neutral-800"
             >
-              {processing ? "PROCESSING..." : "EXECUTE"}
+              {processing ? "Processing..." : "Execute"}
             </button>
           </div>
 
@@ -174,147 +178,122 @@ const LiveMonitor = () => {
           <div className="col-span-4 space-y-4">
 
             {/* PIPELINE */}
-            <div className="brutal-border brutal-shadow p-4">
-              <div className="font-mono text-[10px] mb-4 text-black/50">
-                PIPELINE
-              </div>
+            <div className="bg-white border border-neutral-200 rounded-md p-4">
+              <div className="text-xs text-neutral-500 mb-4">Pipeline</div>
 
-              <div className="flex justify-between">
-                {["INGEST", "INTENT", "AGENTS", "CLASSIFY", "ACTION"].map((s, i) => (
+              <div className="flex justify-between text-xs">
+                {["Ingest", "Intent", "Agents", "Classify", "Action"].map((s, i) => (
                   <div key={s} className="flex items-center gap-2">
-                    <div className={`px-2 py-1 text-[10px] border border-black font-mono ${
-                      i <= step ? "bg-[#C2185B] text-white border-[#C2185B]" : ""
+                    <div className={`px-2 py-1 rounded border ${
+                      i <= step
+                        ? "bg-neutral-900 text-white border-neutral-900"
+                        : "border-neutral-300 text-neutral-500"
                     }`}>
                       {s}
                     </div>
-                    {i < 4 && <div className="w-6 h-[1px] bg-black/40" />}
+                    {i < 4 && <div className="w-6 h-[1px] bg-neutral-300" />}
                   </div>
                 ))}
               </div>
             </div>
 
             {/* AGENTS */}
-            <div className="brutal-border brutal-shadow p-4">
-
-              <div className="font-mono text-[10px] mb-3 text-black/50">
-                AGENT TRACE
-              </div>
+            <div className="bg-white border border-neutral-200 rounded-md p-4">
+              <div className="text-xs text-neutral-500 mb-3">Agent Trace</div>
 
               {liveAgents.length > 0 ? (
                 <div className="space-y-3">
                   {liveAgents.map((agent) => (
-                    <div key={agent.name} className="border border-black p-3">
+                    <div key={agent.name} className="border border-neutral-200 rounded p-3">
                       <div className="flex justify-between mb-1">
-                        <span className="text-sm font-semibold">{agent.name}</span>
+                        <span className="text-sm font-medium">{agent.name}</span>
 
-                        <span className={`
-                          text-[10px] px-2 py-0.5 font-mono border
-                          ${agent.verdict === "DANGEROUS"
-                            ? "bg-[#C2185B] text-white border-[#C2185B]"
+                        <span className={`text-xs px-2 py-0.5 rounded ${
+                          agent.verdict === "DANGEROUS"
+                            ? "bg-red-100 text-red-700"
                             : agent.verdict === "SUSPICIOUS"
-                            ? "bg-[#F59E0B] text-black border-[#F59E0B]"
-                            : "bg-[#10B981] text-white border-[#10B981]"
-                          }
-                        `}>
+                            ? "bg-yellow-100 text-yellow-700"
+                            : "bg-emerald-100 text-emerald-700"
+                        }`}>
                           {agent.verdict}
                         </span>
                       </div>
 
-                      <p className="text-[11px] font-mono text-black/60">
+                      <p className="text-xs text-neutral-500">
                         {agent.reasoning}
                       </p>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-xs font-mono text-black/50">
-                  AWAITING SIGNAL...
+                <div className="text-sm text-neutral-400">
+                  Awaiting signal...
                 </div>
               )}
             </div>
           </div>
 
           {/* ACTION ENGINE */}
-          <div className="col-span-5 brutal-border brutal-shadow p-5">
+          <div className="col-span-5 bg-white border border-neutral-200 rounded-md p-5">
 
-            <div className="font-mono text-[10px] mb-4 text-black/50">
-              ACTION ENGINE
-            </div>
+            <div className="text-xs text-neutral-500 mb-4">Action Engine</div>
 
             {result ? (
               <div className="space-y-5">
 
-                {/* SCORE */}
                 <div>
-                  <div className="text-xs font-mono mb-1">
-                    THREAT SCORE
+                  <div className="text-xs text-neutral-500 mb-1">
+                    Threat Score
                   </div>
 
-                  <div className="text-4xl font-mono">
+                  <div className="text-3xl font-semibold">
                     {(result.riskScore / 10).toFixed(1)}
                   </div>
 
-                  <div className="h-[3px] bg-black/10 mt-2">
+                  <div className="h-[3px] bg-neutral-200 mt-2">
                     <div
                       className={`h-full ${
                         result.riskScore > 70
-                          ? "bg-[#C2185B]"
+                          ? "bg-red-500"
                           : result.riskScore > 40
-                          ? "bg-[#F59E0B]"
-                          : "bg-[#10B981]"
+                          ? "bg-yellow-500"
+                          : "bg-emerald-500"
                       }`}
                       style={{ width: `${result.riskScore}%` }}
                     />
                   </div>
                 </div>
 
-                {/* ACTION STATES */}
-                <div className="grid grid-cols-4 gap-2 font-mono text-[10px]">
+                <div className="grid grid-cols-4 gap-2 text-xs">
                   {["ALLOW", "WARN", "FLAG", "ESCALATE"].map((a) => (
                     <div
                       key={a}
-                      className={`
-                        text-center py-2 border
-                        ${
-                          result.action === a
-                            ? a === "ESCALATE"
-                              ? "bg-[#C2185B] text-white border-[#C2185B]"
-                              : a === "FLAG"
-                              ? "bg-[#F59E0B] text-black border-[#F59E0B]"
-                              : a === "WARN"
-                              ? "bg-[#F59E0B]/80 text-black border-[#F59E0B]"
-                              : "bg-[#10B981] text-white border-[#10B981]"
-                            : "border-black/40"
-                        }
-                      `}
+                      className={`text-center py-2 rounded border ${
+                        result.action === a
+                          ? "bg-neutral-900 text-white border-neutral-900"
+                          : "border-neutral-300 text-neutral-500"
+                      }`}
                     >
                       {a}
                     </div>
                   ))}
                 </div>
 
-                {/* TRACE */}
-                <div className="border-t pt-3 font-mono text-[11px] space-y-1">
+                <div className="border-t pt-3 text-xs space-y-1">
                   {result.agents.map((a, i) => (
                     <div key={i} className="flex justify-between">
                       <span>{a.name}</span>
-                      <span>{a.verdict}</span>
+                      <span className="text-neutral-500">{a.verdict}</span>
                     </div>
                   ))}
                 </div>
 
-                {/* META */}
-                <div className="border-t pt-2 font-mono text-[10px] text-black/50">
-                  LAT: {1200 + result.riskScore * 5}ms · PRIV: in-memory · STORE: none
-                </div>
-
               </div>
             ) : (
-              <div className="text-sm font-mono text-black/50">
-                NO ACTIVE ANALYSIS
+              <div className="text-sm text-neutral-400">
+                No active analysis
               </div>
             )}
-
           </div>
 
         </div>
