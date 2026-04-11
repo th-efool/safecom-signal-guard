@@ -29,48 +29,52 @@ const Policies = () => {
       <div className="space-y-6">
 
         {/* HEADER */}
-        <div className="flex items-end justify-between border-b border-black pb-4">
+        <div className="flex items-end justify-between border-b border-neutral-200 pb-4">
           <div>
-            <h1 className="text-xl font-semibold uppercase">
+            <h1 className="text-xl font-semibold text-neutral-900">
               Policy Engine
             </h1>
-            <p className="font-mono text-xs text-black/60 mt-1">
-              &gt; RULE-BASED EXECUTION LAYER
+            <p className="text-xs text-neutral-500 mt-1">
+              Rule-based execution layer
             </p>
           </div>
 
-          <button className="border border-black px-3 py-1 text-xs font-mono flex items-center gap-1 hover:bg-black hover:text-white transition">
+          <button className="border border-neutral-300 px-3 py-1 text-xs rounded-md flex items-center gap-1 hover:bg-neutral-100 transition">
             <Plus className="h-3.5 w-3.5" />
-            ADD POLICY
+            Add Policy
           </button>
         </div>
 
         {/* RULES */}
-        <div className="space-y-3">
+        <div className="space-y-2">
 
           {policies.map((policy) => (
             <div
               key={policy.id}
               className={`
-                border-2 border-black bg-white p-4 flex justify-between items-center
-                transition
-                ${policy.enabled ? "" : "opacity-40 grayscale"}
-                hover:shadow-[4px_4px_0px_black]
+                flex justify-between items-center
+                border border-neutral-200 rounded-md p-4
+                bg-white transition
+                ${policy.enabled ? "" : "opacity-50"}
               `}
             >
 
-              {/* LEFT FLOW */}
-              <div className="flex items-center gap-3 font-mono text-sm">
+              {/* LEFT SIDE */}
+              <div className="flex items-center gap-3 text-sm">
 
-                <span className="border border-black px-2 py-1 text-[10px]">
+                {/* IF */}
+                <span className="text-xs text-neutral-500">
                   IF
                 </span>
 
-                <span>{policy.condition}</span>
+                <span className="text-neutral-900">
+                  {policy.condition}
+                </span>
 
-                <ArrowRight className="h-4 w-4 text-black/60" />
+                <ArrowRight className="h-4 w-4 text-neutral-400" />
 
-                <span className="border border-black px-2 py-1 text-[10px]">
+                {/* THEN */}
+                <span className="text-xs text-neutral-500">
                   THEN
                 </span>
 
@@ -82,7 +86,6 @@ const Policies = () => {
               <Switch
                 checked={policy.enabled}
                 onCheckedChange={() => togglePolicy(policy.id)}
-                className="border border-black data-[state=checked]:bg-black"
               />
 
             </div>
